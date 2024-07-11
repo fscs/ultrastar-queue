@@ -1,9 +1,21 @@
 from fastapi import FastAPI, HTTPException, status, Path, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from sqlmodel import Session, select
 from contextlib import asynccontextmanager
-from database.models import UltrastarSong, UltrastarSongBase
+from database.models import UltrastarSong, UltrastarSongBase, User, UserBase
 from database.db import init_db, clean_db, get_session
+from auth import get_current_user, Token, authenticate_user, create_access_token, is_admin, fake_users
+
+
+fake_songs = {
+    "1": {"title": "Fire & Forgive",
+          "artist": "Powerwolf",
+          "lyrics": "And we bring fire, sing fire, scream fire and forgive"},
+    "2": {"title": "Hardrock Hallelujah",
+          "artist": "Lordi",
+          "lyrics": "The saints are crippled on this sinners night lost are the lambs with no guiding light"}
+}
 
 
 @asynccontextmanager
@@ -49,7 +61,7 @@ async def get_songs_by_criteria(
         ) -> list[UltrastarSong]:
 
     songs = []
-    # TODO matching für Title in Datenbank und Query
+
     if title and artist:
         statement = select(UltrastarSong).where(UltrastarSong.title == title, UltrastarSong.artist == artist)
         songs = list(session.exec(statement).all())
@@ -65,7 +77,7 @@ async def get_songs_by_criteria(
     return songs
 
 
-@app.post("/create-song/")
+@app.post("/create-song", dependencies=[Depends(is_admin)])
 async def create_song(
         song_data: UltrastarSongBase,
         session: Session = Depends(get_session)
@@ -75,3 +87,23 @@ async def create_song(
     session.commit()
     session.refresh(song)
     return song
+
+
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+    user = authenticate_user(fake_users, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    access_token = create_access_token(data={"sub": user.username})
+    return Token(access_token=access_token, token_type="bearer")
+
+
+@app.get("/users/me", response_model=UserBase)
+async def read_users_me(
+        current_user: Annotated[User, Depends(get_current_user)]
+):
+    return current_user

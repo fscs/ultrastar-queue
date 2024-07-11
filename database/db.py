@@ -1,6 +1,7 @@
 from sqlmodel import SQLModel, create_engine, Session
+from decouple import config
 
-DATABASE_URL = "sqlite:///db.sqlite"
+DATABASE_URL = config("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL, echo=True)
 

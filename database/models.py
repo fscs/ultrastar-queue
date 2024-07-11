@@ -9,3 +9,12 @@ class UltrastarSongBase(SQLModel):
 
 class UltrastarSong(UltrastarSongBase, table=True):
     id: int = Field(default=None, primary_key=True)
+
+
+class UserBase(SQLModel):
+    username: str
+    is_admin: bool = False
+
+
+class User(UserBase):
+    hashed_password: str
