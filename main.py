@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from database.models import UltrastarSong, UltrastarSongBase, User, UserBase
 from database.db import init_db, clean_db, get_session
 from auth import get_current_user, Token, authenticate_user, create_access_token, is_admin, fake_users
+from queue_handler import QueueHandler, SongInQueue
 
 
 fake_songs = {
@@ -16,6 +17,9 @@ fake_songs = {
           "artist": "Lordi",
           "lyrics": "The saints are crippled on this sinners night lost are the lambs with no guiding light"}
 }
+
+admin_dep = [Depends(is_admin)]
+queue_handler = QueueHandler()
 
 
 @asynccontextmanager
@@ -30,6 +34,51 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+###################################################################
+
+
+@app.get("/queue")
+async def get_queue():
+    return queue_handler.get_queue()
+
+
+@app.post("/add-song-to-queue")
+async def add_song_to_queue(song: UltrastarSong, singer: str, session: Session = Depends(get_session)):
+    statement = select(UltrastarSong).where(UltrastarSong.id == song.id,
+                                            UltrastarSong.title == song.title,
+                                            UltrastarSong.artist == song.artist)
+    if not session.exec(statement).first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Song not in database")
+    song_in_queue = SongInQueue(song=song, singer=singer)
+    queue_handler.add_song_at_end(song_in_queue)
+    return song_in_queue
+
+
+@app.put("/check-first-song", dependencies=admin_dep)
+async def check_first_song():
+    try:
+        checked = queue_handler.mark_first_song_as_processed()
+    except IndexError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Queue is empty")
+    return {"checked": checked}
+
+
+@app.delete("/remove-song-from-queue", dependencies=admin_dep)
+async def remove_song_from_queue(index: int):
+    try:
+        removed = queue_handler.remove_song_by_index(index)
+    except IndexError:
+        raise
+    return {"deleted": removed}
+
+
+@app.delete("/clear_queue", dependencies=admin_dep)
+async def clear_queue():
+    queue_handler.clear_queue()
+    return {"message": "Queue cleared"}
+
+##################################################################
 
 
 @app.get("/songs")
@@ -77,7 +126,7 @@ async def get_songs_by_criteria(
     return songs
 
 
-@app.post("/create-song", dependencies=[Depends(is_admin)])
+@app.post("/create-song", dependencies=admin_dep)
 async def create_song(
         song_data: UltrastarSongBase,
         session: Session = Depends(get_session)
@@ -87,6 +136,8 @@ async def create_song(
     session.commit()
     session.refresh(song)
     return song
+
+###################################################################
 
 
 @app.post("/token")
