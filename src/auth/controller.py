@@ -1,34 +1,18 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
 from typing import Annotated
 from passlib.context import CryptContext
-from database.models import User
+from src.database.models import User
 import jwt
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from decouple import config
+from src.fake import fake_users
+from .schemas import TokenData
 
 SECRET_KEY = config("SECRET_KEY")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-fake_users = {
-    "bestUser": {"username": "bestUser",
-                 "hashed_password": "$2b$12$VBJFBBwpnnvb9dy.NHdPnOcliuN1pkOPBUMHkfNX8cFJWjl8GlM5O"},  # password = password
-    "bestAdmin": {"username": "bestAdmin",
-                  "is_admin": True,
-                  "hashed_password": "$2b$12$VBJFBBwpnnvb9dy.NHdPnOcliuN1pkOPBUMHkfNX8cFJWjl8GlM5O"}  # password = password
-}
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

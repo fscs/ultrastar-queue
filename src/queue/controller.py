@@ -1,10 +1,4 @@
-from pydantic import BaseModel
-from database.models import UltrastarSong
-
-
-class SongInQueue(BaseModel):
-    song: UltrastarSong
-    singer: str
+from .schemas import SongInQueue
 
 
 class QueueClosedError(Exception):
@@ -14,7 +8,7 @@ class QueueClosedError(Exception):
         super().__init__(self.msg)
 
 
-class QueueHandler:
+class QueueController:
 
     def __init__(self):
         self._queue: list[SongInQueue] = []
