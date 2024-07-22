@@ -48,7 +48,7 @@ async def get_songs_by_criteria(
     return songs
 
 
-@song_router.post("/create-song", dependencies=[Depends(is_admin)])
+@song_router.post("/create-song", dependencies=[Depends(is_admin)], status_code=status.HTTP_201_CREATED)
 async def create_song(
         song_data: UltrastarSongBase,
         session: AsyncSession = Depends(get_session)
