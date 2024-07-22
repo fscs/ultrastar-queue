@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from src.database.db import init_db, clean_db
+from src.database.controller import init_db, clean_db
 from src.queue.routes import queue_router
 from src.songs.routes import song_router
 from src.auth.routes import auth_router

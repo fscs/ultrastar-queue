@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from .controller import QueueController
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.auth.controller import is_admin
-from src.database.db import get_session
+from src.database.controller import get_session
 from src.database import controller as db_controller
 from src.database.models import UltrastarSong
 from .schemas import SongInQueue
