@@ -24,19 +24,7 @@ async def get_songs(
     return songs
 
 
-@song_router.get("/{song_id}")
-async def get_song(
-        song_id: int,
-        session: AsyncSession = Depends(get_session)
-        ) -> UltrastarSong:
-    song = await db_controller.get_song_by_id(session, song_id)
-    if song is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Song_id not found")
-    return song
-
-
-# currently broken
-@song_router.get("/get-songs-by-criteria")
+@song_router.get(path="/get-songs-by-criteria")
 async def get_songs_by_criteria(
         title: str | None = None,
         artist: str | None = None,
@@ -46,6 +34,17 @@ async def get_songs_by_criteria(
     if not songs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could not find songs with provided criteria")
     return songs
+
+
+@song_router.get("/{song_id}")
+async def get_song_by_id(
+        song_id: int,
+        session: AsyncSession = Depends(get_session)
+        ) -> UltrastarSong:
+    song = await db_controller.get_song_by_id(session, song_id)
+    if song is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Song_id not found")
+    return song
 
 
 @song_router.post("/create-song", dependencies=[Depends(is_admin)], status_code=status.HTTP_201_CREATED)
