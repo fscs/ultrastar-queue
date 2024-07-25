@@ -48,6 +48,7 @@ class QueueController:
             raise IndexError
         return removed
 
+    # how would somebody expect this to work?
     def move_song_from_to(self, from_index: int, to_index: int):
         try:
             moved = self._queue.pop(from_index)
