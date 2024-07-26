@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from decouple import config
 from src.fake import fake_users
 from .schemas import TokenData
+from .exceptions import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
 
 SECRET_KEY = config("SECRET_KEY")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
@@ -34,28 +35,23 @@ def get_user(db, username: str) -> User:
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"}
-    )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
-            raise credentials_exception
+            raise CredentialsHTTPException()
         token_data = TokenData(username=username)
     except InvalidTokenError:
-        raise credentials_exception
+        raise CredentialsHTTPException()
     user = get_user(fake_users, username=token_data.username)
     if user is None:
-        raise credentials_exception
+        raise CredentialsHTTPException()
     return user
 
 
 async def is_admin(user: Annotated[User, Depends(get_current_user)]) -> User:
     if not user.is_admin:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not enough privileges")
+        raise NotEnoughPrivilegesHTTPException()
     return user
 
 

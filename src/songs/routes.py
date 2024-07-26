@@ -5,6 +5,7 @@ from src.database import controller as db_controller
 from src.database.models import UltrastarSong
 from src.auth.controller import is_admin
 from .schemas import UltrastarSongBase
+from .exceptions import *
 
 song_router = APIRouter(
     prefix="/songs",
@@ -20,7 +21,7 @@ async def get_songs(
         ) -> list[UltrastarSong]:
     songs = await db_controller.get_songs(session)
     if not songs:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Songlist is empty")
+        raise EmptySonglistHTTPException()
     return songs
 
 
@@ -32,7 +33,7 @@ async def get_songs_by_criteria(
         ) -> list[UltrastarSong]:
     songs = await db_controller.get_songs_by_criteria(session, title, artist)
     if not songs:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could not find songs with provided criteria")
+        raise NoMatchingSongHTTPException()
     return songs
 
 
@@ -43,7 +44,7 @@ async def get_song_by_id(
         ) -> UltrastarSong:
     song = await db_controller.get_song_by_id(session, song_id)
     if song is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Song_id not found")
+        raise SongIdNotMatchingHTTPException()
     return song
 
 
