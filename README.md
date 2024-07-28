@@ -16,3 +16,5 @@
 - https://sqlmodel.tiangolo.com/tutorial/
 - https://github.com/jod35/lib-api
 - https://github.com/jod35/fastapi-beyond-CRUD
+- https://www.youtube.com/playlist?list=PL-2EBeDYMIbQghmnb865lpdmYyWU3I5F1
+- https://usdx.eu/format/#specs
