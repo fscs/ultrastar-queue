@@ -1,4 +1,17 @@
-from enum import Flag, StrEnum, Enum
+from enum import StrEnum, Enum
+from datetime import timedelta
+
+
+class UltrastarSongConverter:
+    def __init__(self, title: str, artist: str, lyrics: str, audio_duration_in_seconds: str, *args, **kwargs) -> None:
+        self.title: str = title
+        self.artist: str = artist
+        self.lyrics: str | None = lyrics if len(lyrics) > 0 else None
+        self.audio_duration: timedelta | None = (  # TODO irgendwas stimmt hier nicht
+            timedelta(float(audio_duration_in_seconds))
+            if len(audio_duration_in_seconds) > 0
+            else None
+        )
 
 
 # from https://usdx.eu/format/#specs accessesed at 27.07.2024
@@ -74,7 +87,6 @@ dict_cleaning_attributes = {
 # the regex "^#[a-zA-Z0-9]+:" for ATTRIBUTE would be better fitting for the format up to now but meh
 class UltrastarFileRegexMatcher(Enum):
     ATTRIBUTE: str = r"^#\w+:"  # e.g. "#TITLE:"
-    # ATTRIBUTE_WITH_BOM_ENCODING: str = r"^\\ufeff#\w+:"  # e.g. "#TITLE:"
     SINGER: str = r"^P\d+$"  # e.g. "P1"
     END_OF_PHRASE: str = r"^- \d+$"  # e.g. "- 5"
     END_OF_FILE: str = r"^E$"  # e.g. "E"
