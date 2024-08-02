@@ -1,12 +1,12 @@
 import re
 import os
 from typing import Dict, List
-from schemas import UltrastarFileRegexMatcher
+from .schemas import UltrastarFileRegexMatcher
 
 
 def get_song_file_paths(input_dir: str) -> List[str]:
     if not os.path.exists(input_dir):
-        raise FileNotFoundError(f"Could not find path: {input_dir}")
+        raise FileNotFoundError("Could not find path: {path}".format(path=input_dir))
     song_paths = [os.path.join(dir_path, file)
                   for dir_path, dir_names, files in os.walk(input_dir)
                   for file in files

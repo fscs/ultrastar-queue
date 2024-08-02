@@ -65,3 +65,10 @@ async def get_songs_by_criteria(
     songs = await session.exec(statement)
 
     return list(songs.all())
+
+
+async def add_song_if_not_in_db(session: AsyncSession, song: UltrastarSong) -> UltrastarSong | None:
+    matching_songs = await get_songs_by_criteria(session, title=song.title, artist=song.artist)
+    if matching_songs:
+        return None
+    return await add_song(session, song)

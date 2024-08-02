@@ -1,7 +1,7 @@
 import os
 from tinytag import TinyTag
 from typing import Dict
-from schemas import dict_cleaning_attributes
+from .schemas import dict_cleaning_attributes
 
 
 def _clean_attributes(attributes: Dict[str, str]) -> None:

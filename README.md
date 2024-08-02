@@ -12,11 +12,6 @@
 - run src/main.py
 - test at http://127.0.0.1:8000/docs (no frontend added yet)
 
-### Ultrastar file parser
-- add path to dir with ultrastar song files at PATH_TO_ULTRASTAR_SONG_DIR in .env
-  - song examples are included in song_examples
-- run src/ultrastar_file/__init__.py
-
 ## Used Sources
 
 - https://www.youtube.com/watch?v=vkEhatGH1kI
