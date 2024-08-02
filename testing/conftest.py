@@ -6,7 +6,7 @@ from src.database.models import UltrastarSong
 from src.songs.schemas import UltrastarSongBase
 from src.database.controller import get_session
 from src.queue.schemas import SongInQueue
-from src.auth.controller import is_admin
+from src.queue.routes import datetime
 
 
 @pytest.fixture(scope="session")
@@ -153,6 +153,19 @@ def mock_queue_controller_remove_song_by_index():
 @pytest.fixture()
 def mock_queue_controller_clear_queue():
     patcher = patch('src.queue.controller.QueueController.clear_queue')
+    mock = patcher.start()
+    yield mock
+    patcher.stop()
+
+
+@pytest.fixture()
+def fake_datetime() -> datetime:
+    return datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+
+
+@pytest.fixture()
+def mock_queue_routes_datetime(fake_datetime):
+    patcher = patch('src.queue.routes.datetime')
     mock = patcher.start()
     yield mock
     patcher.stop()

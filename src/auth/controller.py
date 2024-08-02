@@ -11,7 +11,7 @@ from src.fake import fake_users
 from .schemas import TokenData
 from .exceptions import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
 
-SECRET_KEY = config("SECRET_KEY")
+JWT_SIGNING_SECRET_KEY = config("JWT_SIGNING_SECRET_KEY")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -36,7 +36,7 @@ def get_user(db, username: str) -> User:
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(token, JWT_SIGNING_SECRET_KEY, algorithms=[JWT_ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise CredentialsHTTPException()
@@ -68,5 +68,5 @@ def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, JWT_SIGNING_SECRET_KEY, algorithm=JWT_ALGORITHM)
     return encoded_jwt

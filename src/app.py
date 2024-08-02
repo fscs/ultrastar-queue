@@ -4,6 +4,7 @@ from src.database.controller import init_db, clean_db
 from src.queue.routes import queue_router
 from src.songs.routes import song_router
 from src.auth.routes import auth_router
+from src.admin.routes import admin_router
 
 
 @asynccontextmanager
@@ -17,6 +18,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(queue_router)
 app.include_router(song_router)
 app.include_router(auth_router)
+app.include_router(admin_router)
 
 
 @app.get("/")

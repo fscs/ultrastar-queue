@@ -1,19 +1,23 @@
 from .schemas import SongInQueue
 from .exceptions import QueueClosedError, QueueEmptyError, QueueIndexError
+from src.database.models import UltrastarSong
 
 
 class QueueController:
 
     def __init__(self):
         self._queue: list[SongInQueue] = []
-        self._processed_songs: list[SongInQueue] = []
+        self._processed_songs: list[UltrastarSong] = []
         self._queue_is_open: bool = True
 
     def get_queue(self) -> list[SongInQueue]:
         return self._queue.copy()
 
-    def get_processed_songs(self) -> list[SongInQueue]:
+    def get_processed_songs(self) -> list[UltrastarSong]:
         return self._processed_songs.copy()
+
+    def is_queue_open(self) -> bool:
+        return self._queue_is_open
 
     def add_song_at_end(self, song: SongInQueue):
         if not self._queue_is_open:
@@ -32,7 +36,7 @@ class QueueController:
             removed = self._queue.pop(0)
         except IndexError as exc:
             raise QueueEmptyError() from exc
-        self._processed_songs.append(removed)
+        self._processed_songs.append(removed.song)
         return removed
 
     def remove_song_by_index(self, index: int):
@@ -61,3 +65,8 @@ class QueueController:
 
     def open_queue(self) -> None:
         self._queue_is_open = True
+
+    def clear_queue_controller(self) -> None:
+        self.clear_queue()
+        self.clear_processed_songs()
+        self.open_queue()
