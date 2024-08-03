@@ -23,4 +23,5 @@
 - https://www.youtube.com/playlist?list=PL-2EBeDYMIbQghmnb865lpdmYyWU3I5F1
 - https://usdx.eu/format/#specs
 - https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory
-  - used for src/ultrastar_file/parser get_song_file_paths()
+  - used for src/ultrastar_file_parser UltrastarFileParser.get_song_file_paths()
+- https://usdx.eu/format/#specs

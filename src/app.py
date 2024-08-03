@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from decouple import config
 from src.database.models import UltrastarSong
@@ -8,24 +8,23 @@ from src.queue.routes import queue_router
 from src.songs.routes import song_router
 from src.auth.routes import auth_router
 from src.admin.routes import admin_router
-from src.ultrastar_file import parser
-from src.ultrastar_file.schemas import UltrastarSongConverter
-from src.ultrastar_file.converter import update_ultrastar_song_attributes
-from src.songs.schemas import UltrastarSongBase
+from src.ultrastar_file_parser.parser import UltrastarFileParser
+from src.songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 async def populate_database():
     path = config("PATH_TO_ULTRASTAR_SONG_DIR")
-    files = parser.get_song_file_paths(path)
+    files = UltrastarFileParser.get_song_file_paths(path)
     for file_path in files:
         try:
-            attr_dict = parser.parse_file_for_ultrastar_song_attributes(file_path)
+            attr_dict = UltrastarFileParser.parse_file_for_ultrastar_song_attributes(file_path)
         except ValueError as e:
             print(f"Not an ultrastar file: {file_path}")
             print(e)
             continue
-        update_ultrastar_song_attributes(os.path.dirname(file_path), attr_dict)
+        audio_duration = UltrastarFileParser.get_audio_duration(os.path.dirname(file_path), attr_dict["audio"])
+        attr_dict["audio_duration_in_seconds"] = audio_duration
         song_converter = UltrastarSongConverter(**attr_dict)
         song_base: UltrastarSongBase = UltrastarSongBase(
             title=song_converter.title,
