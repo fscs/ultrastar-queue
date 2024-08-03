@@ -1,15 +1,15 @@
-from fastapi import APIRouter, status, Response
+from fastapi import APIRouter, status, Response, Depends
 from datetime import datetime
 from src.queue.routes import queue_controller
 from src.queue.exceptions import QueueClosedHTTPException, QueueClosedError
 from src.queue.schemas import SongInQueue
 from src.database.models import UltrastarSong
-
+from src.auth.controller import is_admin
 
 admin_router = APIRouter(
     prefix="/admin",
     tags=["admin"],
-    dependencies=[],
+    dependencies=[Depends(is_admin)],
     responses={404: {"description": "Not found"}}
 )
 

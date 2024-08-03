@@ -4,7 +4,6 @@ from src.auth.controller import is_admin
 from src.queue.routes import queue_controller
 from .test_main import overrides_is_admin_as_false
 from src.queue.routes import TIME_BETWEEN_SONGS
-from datetime import datetime
 
 
 def _clean_test_setup(client):
