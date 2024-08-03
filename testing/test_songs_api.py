@@ -1,6 +1,11 @@
 from fastapi import status
 from src.app import app
 from src.auth.controller import is_admin
+from src.auth.exceptions import NotEnoughPrivilegesHTTPException
+from src.songs.exceptions import (
+    EmptySonglistHTTPException,
+    NoMatchingSongHTTPException,
+    SongIdNotMatchingHTTPException)
 from .test_main import overrides_is_admin_as_false
 
 
@@ -9,8 +14,8 @@ def test_get_songs_with_no_song(client, mock_db_query_get_songs):
     response = client.get("/songs/")
     mock_db_query_get_songs.assert_called_once()
 
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Songlist is empty"}
+    assert response.status_code == EmptySonglistHTTPException._default_status_code
+    assert response.json() == {"detail": EmptySonglistHTTPException._default_detail}
 
 
 def test_get_songs_with_single_song(client, mock_db_query_get_songs, song1):
@@ -36,8 +41,8 @@ def test_get_song_by_id_with_incorrect_id(client, mock_db_query_get_song_by_id, 
     response = client.get(f"/songs/{song1.id}")
     mock_db_query_get_song_by_id.assert_called_once_with(None, song1.id)
 
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Song_id not found"}
+    assert response.status_code == SongIdNotMatchingHTTPException._default_status_code
+    assert response.json() == {"detail": SongIdNotMatchingHTTPException._default_detail}
 
 
 def test_get_song_by_id_with_correct_id(client, mock_db_query_get_song_by_id, song1):
@@ -63,8 +68,8 @@ def test_get_songs_by_criteria_with_no_matching_song(client, mock_db_query_get_s
     response = client.get("/songs/get-songs-by-criteria", params={"artist": "Heino"})
     mock_db_query_get_songs_by_criteria.assert_called_once_with(None, None, "Heino")
 
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Could not find songs with provided criteria"}
+    assert response.status_code == NoMatchingSongHTTPException._default_status_code
+    assert response.json() == {"detail": NoMatchingSongHTTPException._default_detail}
 
 
 def test_get_songs_by_criteria_with_matching_artist(client, mock_db_query_get_songs_by_criteria, song1, song2):
@@ -128,7 +133,7 @@ def test_create_song_without_admin_privileges(client, mock_db_query_add_song, so
     response = client.post("/songs/create-song", json=song1_base.model_dump())
     mock_db_query_add_song.assert_not_called()
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json() == {"detail": "Not enough privileges"}
+    assert response.status_code == NotEnoughPrivilegesHTTPException._default_status_code
+    assert response.json() == {"detail": NotEnoughPrivilegesHTTPException._default_detail}
 
     app.dependency_overrides.pop(is_admin)

@@ -91,3 +91,45 @@ class MismatchingSongDataHTTPException(HTTPException):
         self.status_code: int = status_code
         self.detail: str = detail
         self.headers: Dict[str, str] = headers
+
+
+class CantSubmitSongHTTPException(HTTPException):
+    _default_status_code: int = status.HTTP_400_BAD_REQUEST
+    _default_detail: str = f"Please wait a while before submitting a new song"
+
+    def __init__(self,
+                 status_code: int = _default_status_code,
+                 detail: str = _default_detail,
+                 headers: Dict[str, str] = None
+                 ) -> None:
+        self.status_code: int = status_code
+        self.detail: str = detail
+        self.headers: Dict[str, str] = headers
+
+
+class SongAlreadyInQueueHTTPException(HTTPException):
+    _default_status_code: int = status.HTTP_400_BAD_REQUEST
+    _default_detail: str = f"Requested Song is already in queue"
+
+    def __init__(self,
+                 status_code: int = _default_status_code,
+                 detail: str = _default_detail,
+                 headers: Dict[str, str] = None
+                 ) -> None:
+        self.status_code: int = status_code
+        self.detail: str = detail
+        self.headers: Dict[str, str] = headers
+
+
+class SongAlreadySungHTTPException(HTTPException):
+    _default_status_code: int = status.HTTP_400_BAD_REQUEST
+    _default_detail: str = f"Requested Song has already been sung today"
+
+    def __init__(self,
+                 status_code: int = _default_status_code,
+                 detail: str = _default_detail,
+                 headers: Dict[str, str] = None
+                 ) -> None:
+        self.status_code: int = status_code
+        self.detail: str = detail
+        self.headers: Dict[str, str] = headers

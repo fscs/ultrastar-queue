@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Cookie, Response, HTTPException
+from fastapi import APIRouter, Depends, Cookie, Response
 from .controller import QueueController
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.auth.controller import is_admin
@@ -35,8 +35,9 @@ async def add_song_to_queue(
 ):
     if last_added is not None:
         if last_added > (datetime.now() - timedelta(TIME_BETWEEN_SONGS)):
-            raise HTTPException(status_code=400,
-                                detail=f"Please wait {TIME_BETWEEN_SONGS} seconds before submitting a new song")
+            raise CantSubmitSongHTTPException(
+                detail=f"Please wait {TIME_BETWEEN_SONGS} seconds before submitting a new song"
+            )
 
     song_in_db = await db_controller.get_song_by_id(session, requested_song.id)
     if not song_in_db:
@@ -46,12 +47,10 @@ async def add_song_to_queue(
 
     for queue_entry in queue_controller.get_queue():
         if queue_entry.song.__eq__(song_in_db):
-            raise HTTPException(status_code=400,
-                                detail=f"Song {requested_song} is already in queue")
+            raise SongAlreadyInQueueHTTPException(detail=f"Song {requested_song} is already in queue")
 
     if song_in_db in queue_controller.get_processed_songs():
-        raise HTTPException(status_code=400,
-                            detail=f"Song {requested_song} has already been sung today")
+        raise SongAlreadySungHTTPException(detail=f"Song {requested_song} has already been sung today")
 
     song_in_queue = SongInQueue(song=song_in_db, singer=singer)
     try:
