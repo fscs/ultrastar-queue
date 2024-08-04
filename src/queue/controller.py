@@ -1,5 +1,5 @@
 from .schemas import SongInQueue
-from .exceptions import QueueClosedError, QueueEmptyError, QueueIndexError
+from .exceptions import QueueEmptyError, QueueIndexError
 from src.database.models import UltrastarSong
 
 
@@ -20,14 +20,10 @@ class QueueController:
         return self._queue_is_open
 
     def add_song_at_end(self, song: SongInQueue):
-        if not self._queue_is_open:
-            raise QueueClosedError()
         self._queue.append(song)
         return song
 
     def add_song_at_index(self, song: SongInQueue, index: int):
-        if not self._queue_is_open:
-            raise QueueClosedError()
         self._queue.insert(index, song)
         return song
 

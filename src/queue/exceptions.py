@@ -2,16 +2,9 @@ from fastapi import HTTPException, status
 from typing import Dict
 
 
-class QueueClosedError(Exception):
-    _default_msg: str = "Queue is closed. Can't add any more songs."
-
-    def __init__(self, msg: str = _default_msg) -> None:
-        self.msg: str = msg
-
-
-class QueueClosedHTTPException(HTTPException, QueueClosedError):
+class QueueClosedHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_403_FORBIDDEN
-    _default_detail: str = QueueClosedError._default_msg
+    _default_detail: str = "Queue is closed. Can't add any more songs."
 
     def __init__(self,
                  status_code: int = _default_status_code,

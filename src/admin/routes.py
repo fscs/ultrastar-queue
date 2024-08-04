@@ -1,7 +1,6 @@
 from fastapi import APIRouter, status, Response, Depends
 from datetime import datetime
 from src.queue.routes import queue_controller
-from src.queue.exceptions import QueueClosedHTTPException, QueueClosedError
 from src.queue.schemas import SongInQueue
 from src.database.models import UltrastarSong
 from src.auth.controller import is_admin
@@ -20,9 +19,6 @@ async def add_song_to_queue_as_admin(
         requested_song: UltrastarSong,
         singer: str):
     song_in_queue = SongInQueue(song=requested_song, singer=singer)
-    try:
-        queue_controller.add_song_at_end(song_in_queue)
-    except QueueClosedError as err:
-        raise QueueClosedHTTPException(detail=err.msg)
+    queue_controller.add_song_at_end(song_in_queue)
     response.set_cookie("last_added", str(datetime.now()), httponly=True)
     return song_in_queue

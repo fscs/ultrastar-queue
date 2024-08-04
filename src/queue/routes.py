@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Cookie, Response
+from fastapi import APIRouter, Depends, Cookie, Response, status
 from .controller import QueueController
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.auth.controller import is_admin
@@ -6,7 +6,16 @@ from src.database.controller import get_session
 from src.database import controller as db_controller
 from src.database.models import UltrastarSong
 from .schemas import SongInQueue
-from .exceptions import *
+from .exceptions import (QueueClosedHTTPException,
+                         QueueEmptyError,
+                         QueueEmptyHTTPException,
+                         QueueIndexError,
+                         QueueIndexHTTPException,
+                         SongAlreadySungHTTPException,
+                         CantSubmitSongHTTPException,
+                         SongNotInDatabaseHTTPException,
+                         SongAlreadyInQueueHTTPException,
+                         MismatchingSongDataHTTPException)
 from datetime import datetime, timedelta
 
 queue_router = APIRouter(
@@ -53,10 +62,10 @@ async def add_song_to_queue(
         raise SongAlreadySungHTTPException(detail=f"Song {requested_song} has already been sung today")
 
     song_in_queue = SongInQueue(song=song_in_db, singer=singer)
-    try:
+    if queue_controller.is_queue_open():
         queue_controller.add_song_at_end(song_in_queue)
-    except QueueClosedError as err:
-        raise QueueClosedHTTPException(detail=err.msg)
+    else:
+        raise QueueClosedHTTPException()
 
     response.set_cookie("last_added", str(datetime.now()), httponly=True)
     return song_in_queue
@@ -78,12 +87,6 @@ async def remove_song_from_queue(index: int):
     except QueueIndexError as err:
         raise QueueIndexHTTPException(detail=err.msg)
     return {"deleted": removed}
-
-
-@queue_router.delete("/clear-queue", dependencies=[Depends(is_admin)])
-async def clear_queue():
-    queue_controller.clear_queue()
-    return {"message": "Queue cleared"}
 
 
 @queue_router.delete("/clear-queue", dependencies=[Depends(is_admin)])

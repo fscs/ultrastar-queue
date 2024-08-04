@@ -20,8 +20,8 @@ class UltrastarSongConverter:
         self.title: str = title
         self.artist: str = artist
         self.lyrics: str | None = lyrics if len(lyrics) > 0 else None
-        self.audio_duration: timedelta | None = (  # TODO irgendwas stimmt hier nicht
-            timedelta(float(audio_duration_in_seconds))
+        self.audio_duration: timedelta | None = (
+            timedelta(seconds=round(float(audio_duration_in_seconds)))
             if len(audio_duration_in_seconds) > 0
             else None
         )
