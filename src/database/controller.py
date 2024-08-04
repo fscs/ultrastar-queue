@@ -1,11 +1,13 @@
-from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
-from .models import UltrastarSong
 from typing import List
-from sqlmodel import SQLModel
+
 from decouple import config
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlmodel import SQLModel
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from .models import UltrastarSong
 
 DATABASE_URL = config("DATABASE_URL")
 

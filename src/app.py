@@ -1,16 +1,18 @@
 import os
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
+
 from decouple import config
-from src.database.models import UltrastarSong
+from fastapi import FastAPI
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.admin.routes import admin_router
+from src.auth.routes import auth_router
 from src.database.controller import init_db, clean_db, add_song_if_not_in_db, get_session
+from src.database.models import UltrastarSong
 from src.queue.routes import queue_router
 from src.songs.routes import song_router
-from src.auth.routes import auth_router
-from src.admin.routes import admin_router
-from src.ultrastar_file_parser.parser import UltrastarFileParser
 from src.songs.schemas import UltrastarSongBase, UltrastarSongConverter
-from sqlmodel.ext.asyncio.session import AsyncSession
+from src.ultrastar_file_parser.parser import UltrastarFileParser
 
 
 async def populate_database():

@@ -1,12 +1,14 @@
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
+
 from src.app import app
-from unittest.mock import patch
-from src.database.models import UltrastarSong
-from src.songs.schemas import UltrastarSongBase
 from src.database.controller import get_session
-from src.queue.schemas import SongInQueue
+from src.database.models import UltrastarSong
 from src.queue.routes import datetime
+from src.queue.schemas import SongInQueue
+from src.songs.schemas import UltrastarSongBase
 
 
 @pytest.fixture(scope="session")

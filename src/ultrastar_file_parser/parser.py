@@ -1,8 +1,10 @@
-import re
 import os
+import re
 import tokenize
 from typing import Dict, List
+
 from tinytag import TinyTag
+
 from .schemas import UltrastarFileRegexMatcher
 
 

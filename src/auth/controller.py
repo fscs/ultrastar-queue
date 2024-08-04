@@ -1,15 +1,17 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from typing import Annotated
-from passlib.context import CryptContext
-from src.database.models import User
-import jwt
-from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
+from typing import Annotated
+
+import jwt
 from decouple import config
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
+from passlib.context import CryptContext
+
+from src.database.models import User
 from src.fake import fake_users
-from .schemas import TokenData
 from .exceptions import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
+from .schemas import TokenData
 
 JWT_SIGNING_SECRET_KEY = config("JWT_SIGNING_SECRET_KEY")
 JWT_ALGORITHM = config("JWT_ALGORITHM")

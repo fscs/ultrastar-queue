@@ -1,5 +1,6 @@
-from fastapi import HTTPException, status
 from typing import Dict
+
+from fastapi import HTTPException, status
 
 
 class CredentialsHTTPException(HTTPException):

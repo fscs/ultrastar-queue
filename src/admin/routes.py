@@ -1,9 +1,11 @@
-from fastapi import APIRouter, status, Response, Depends
 from datetime import datetime
+
+from fastapi import APIRouter, status, Response, Depends
+
+from src.auth.controller import is_admin
+from src.database.models import UltrastarSong
 from src.queue.routes import queue_controller
 from src.queue.schemas import SongInQueue
-from src.database.models import UltrastarSong
-from src.auth.controller import is_admin
 
 admin_router = APIRouter(
     prefix="/admin",

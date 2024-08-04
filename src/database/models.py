@@ -1,6 +1,7 @@
 from sqlmodel import Field
-from src.songs.schemas import UltrastarSongBase
+
 from src.auth.schemas import UserBase
+from src.songs.schemas import UltrastarSongBase
 
 
 class UltrastarSong(UltrastarSongBase, table=True):

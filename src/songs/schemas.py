@@ -1,5 +1,6 @@
-from sqlmodel import SQLModel
 from datetime import timedelta
+
+from sqlmodel import SQLModel
 
 
 class UltrastarSongBase(SQLModel):

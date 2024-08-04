@@ -1,11 +1,13 @@
-from fastapi import Depends, APIRouter
 from typing import Annotated
+
+from fastapi import Depends, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-from .schemas import Token, UserBase
-from src.fake import fake_users
+
 from src.database.models import User
+from src.fake import fake_users
 from .controller import authenticate_user, create_access_token, get_current_user
 from .exceptions import AuthenticationHTTPException
+from .schemas import Token, UserBase
 
 auth_router = APIRouter(
     # prefix="/auth",

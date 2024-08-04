@@ -1,11 +1,13 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, Cookie, Response, status
-from .controller import QueueController
 from sqlmodel.ext.asyncio.session import AsyncSession
+
 from src.auth.controller import is_admin
-from src.database.controller import get_session
 from src.database import controller as db_controller
+from src.database.controller import get_session
 from src.database.models import UltrastarSong
-from .schemas import SongInQueue
+from .controller import QueueController
 from .exceptions import (QueueClosedHTTPException,
                          QueueEmptyError,
                          QueueEmptyHTTPException,
@@ -16,7 +18,7 @@ from .exceptions import (QueueClosedHTTPException,
                          SongNotInDatabaseHTTPException,
                          SongAlreadyInQueueHTTPException,
                          MismatchingSongDataHTTPException)
-from datetime import datetime, timedelta
+from .schemas import SongInQueue
 
 queue_router = APIRouter(
     prefix="/queue",

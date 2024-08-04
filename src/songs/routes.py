@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.database.controller import get_session
-from src.database import controller as db_controller
-from src.database.models import UltrastarSong
+
 from src.auth.controller import is_admin
-from .schemas import UltrastarSongBase
+from src.database import controller as db_controller
+from src.database.controller import get_session
+from src.database.models import UltrastarSong
 from .exceptions import (EmptySonglistHTTPException,
                          NoMatchingSongHTTPException,
                          SongIdNotMatchingHTTPException)
+from .schemas import UltrastarSongBase
 
 song_router = APIRouter(
     prefix="/songs",

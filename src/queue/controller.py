@@ -1,6 +1,6 @@
-from .schemas import SongInQueue
-from .exceptions import QueueEmptyError, QueueIndexError
 from src.database.models import UltrastarSong
+from .exceptions import QueueEmptyError, QueueIndexError
+from .schemas import SongInQueue
 
 
 class QueueController:
