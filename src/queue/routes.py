@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, Cookie, Response, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.app import db_controller
 from src.auth.controller import is_admin
-from src.database import controller as db_controller
-from src.database.controller import get_session
+from src.database.controller import SessionController
 from src.database.models import UltrastarSong
 from .controller import QueueController
 from .exceptions import (QueueClosedHTTPException,
@@ -41,7 +41,7 @@ async def add_song_to_queue(
         response: Response,
         requested_song: UltrastarSong,
         singer: str,
-        session: AsyncSession = Depends(get_session),
+        session: AsyncSession = Depends(db_controller.get_session),
         last_added: datetime | None = Cookie(None)
 ):
     if last_added is not None:
@@ -50,7 +50,7 @@ async def add_song_to_queue(
                 detail=f"Please wait {TIME_BETWEEN_SONGS} seconds before submitting a new song"
             )
 
-    song_in_db = await db_controller.get_song_by_id(session, requested_song.id)
+    song_in_db = await SessionController.get_song_by_id(session, requested_song.id)
     if not song_in_db:
         raise SongNotInDatabaseHTTPException()
     elif (requested_song.title != song_in_db.title) or (requested_song.artist != song_in_db.artist):

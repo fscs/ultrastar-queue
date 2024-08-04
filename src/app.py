@@ -5,12 +5,8 @@ from decouple import config
 from fastapi import FastAPI
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.admin.routes import admin_router
-from src.auth.routes import auth_router
-from src.database.controller import init_db, clean_db, add_song_if_not_in_db, get_session
+from src.database import DBController, SessionController
 from src.database.models import UltrastarSong
-from src.queue.routes import queue_router
-from src.songs.routes import song_router
 from src.songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from src.ultrastar_file_parser.parser import UltrastarFileParser
 
@@ -35,9 +31,9 @@ async def populate_database():
         )
 
         # https://stackoverflow.com/questions/75150942/how-to-get-a-session-from-async-session-generator-fastapi-sqlalchemy
-        generator = get_session()
+        generator = db_controller.get_session()
         session: AsyncSession = (await anext(generator))
-        song = await add_song_if_not_in_db(session, UltrastarSong(**song_base.dict()))
+        song = await SessionController.add_song_if_not_in_db(session, UltrastarSong(**song_base.dict()))
         try:
             await anext(generator)
         except StopAsyncIteration:
@@ -50,7 +46,7 @@ async def populate_database():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    await db_controller.init_db()
     try:
         await populate_database()
     except FileNotFoundError as e:
@@ -59,14 +55,24 @@ async def lifespan(app: FastAPI):
         else:
             raise e
     yield
-    await clean_db()
+    await db_controller.clean_db()
 
+
+def setup_routers():
+    from src.admin.routes import admin_router
+    from src.auth.routes import auth_router
+    from src.queue.routes import queue_router
+    from src.songs.routes import song_router
+
+    app.include_router(queue_router)
+    app.include_router(song_router)
+    app.include_router(auth_router)
+    app.include_router(admin_router)
+
+
+db_controller = DBController(config("DATABASE_URL"))
 app = FastAPI(lifespan=lifespan)
-
-app.include_router(queue_router)
-app.include_router(song_router)
-app.include_router(auth_router)
-app.include_router(admin_router)
+setup_routers()
 
 
 @app.get("/")

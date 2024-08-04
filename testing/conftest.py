@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.app import app
-from src.database.controller import get_session
+from src.app import db_controller
 from src.database.models import UltrastarSong
 from src.queue.routes import datetime
 from src.queue.schemas import SongInQueue
@@ -13,7 +13,7 @@ from src.songs.schemas import UltrastarSongBase
 
 @pytest.fixture(scope="session")
 def client():
-    app.dependency_overrides[get_session] = lambda: None
+    app.dependency_overrides[db_controller.get_session] = lambda: None
     yield TestClient(app)
     app.dependency_overrides = {}
 
@@ -87,7 +87,7 @@ def song3_in_queue(song3) -> SongInQueue:
 
 @pytest.fixture()
 def mock_db_query_get_songs():
-    patcher = patch('src.database.controller.get_songs')
+    patcher = patch('src.database.controller.SessionController.get_songs')
     mock = patcher.start()
     yield mock
     patcher.stop()
@@ -95,7 +95,7 @@ def mock_db_query_get_songs():
 
 @pytest.fixture()
 def mock_db_query_get_song_by_id():
-    patcher = patch('src.database.controller.get_song_by_id')
+    patcher = patch('src.database.controller.SessionController.get_song_by_id')
     mock = patcher.start()
     yield mock
     patcher.stop()
@@ -103,7 +103,7 @@ def mock_db_query_get_song_by_id():
 
 @pytest.fixture()
 def mock_db_query_add_song():
-    patcher = patch('src.database.controller.add_song')
+    patcher = patch('src.database.controller.SessionController.add_song')
     mock = patcher.start()
     yield mock
     patcher.stop()
@@ -111,7 +111,7 @@ def mock_db_query_add_song():
 
 @pytest.fixture()
 def mock_db_query_get_songs_by_criteria():
-    patcher = patch('src.database.controller.get_songs_by_criteria')
+    patcher = patch('src.database.controller.SessionController.get_songs_by_criteria')
     mock = patcher.start()
     yield mock
     patcher.stop()

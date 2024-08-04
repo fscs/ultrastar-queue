@@ -6,12 +6,6 @@
 
 - install the requirements from requirements.txt
 
-## How to use (for manual testing)
-
-### API
-- run src/main.py
-- test at http://127.0.0.1:8000/docs (no frontend added yet)
-
 ## Used Sources
 
 - https://www.youtube.com/watch?v=vkEhatGH1kI
