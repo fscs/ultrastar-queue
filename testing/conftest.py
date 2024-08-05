@@ -213,6 +213,11 @@ def fake_datetime() -> datetime:
 
 
 @pytest.fixture()
+def fake_datetime_one_day_later() -> datetime:
+    return datetime(year=2021, month=1, day=2, hour=1, minute=1, second=1)
+
+
+@pytest.fixture()
 def mock_queue_routes_datetime(fake_datetime):
     patcher = patch('src.queue.routes.datetime')
     mock = patcher.start()

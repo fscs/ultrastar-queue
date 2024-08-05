@@ -61,6 +61,25 @@ def test_get_queue_with_two_songs(client,
     _clean_test_setup(client)
 
 
+def test_add_song_to_queue_returns_correct_cookie(client,
+                                                  mock_db_query_get_song_by_id,
+                                                  mock_queue_routes_datetime,
+                                                  fake_datetime,
+                                                  song1,
+                                                  song1_api_wrap,
+                                                  song1_in_queue,
+                                                  song1_in_queue_api_wrap):
+    _clean_test_setup(client)
+    mock_queue_routes_datetime.now.return_value = fake_datetime
+    mock_db_query_get_song_by_id.return_value = song1
+
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
+
+    assert response.cookies.get("last_added").replace('"', '') == str(fake_datetime)
+
+    _clean_test_setup(client)
+
+
 def test_add_song_to_queue_with_correct_song_details(client,
                                                      mock_db_query_get_song_by_id,
                                                      song1,
@@ -153,8 +172,34 @@ def test_add_song_to_queue_with_recently_added_song(client,
 
     mock_queue_routes_datetime.now.assert_called_once()
     assert response.status_code == CantSubmitSongHTTPException._default_status_code
-    assert response.json() == {"detail": f"Please wait {TIME_BETWEEN_SONGS} seconds before submitting a new song"}
+    assert response.json() == {"detail": f"Please wait {TIME_BETWEEN_SONGS} before submitting a new song"}
     assert queue_controller.get_queue() == []
+
+    _clean_test_setup(client)
+
+
+def test_add_song_to_queue_with_song_added_a_while_ago(client,
+                                                       fake_datetime,
+                                                       fake_datetime_one_day_later,
+                                                       mock_queue_routes_datetime,
+                                                       mock_db_query_get_song_by_id,
+                                                       song1,
+                                                       song1_api_wrap,
+                                                       song1_in_queue,
+                                                       song1_in_queue_api_wrap
+                                                       ):
+    _clean_test_setup(client)
+    client.cookies.update({"last_added": str(fake_datetime)})
+    mock_queue_routes_datetime.now.return_value = fake_datetime_one_day_later
+    mock_db_query_get_song_by_id.return_value = song1
+
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
+
+    mock_queue_routes_datetime.now.assert_called()
+    mock_db_query_get_song_by_id.assert_called_once_with(None, song1.id)
+    assert queue_controller.get_queue() == [song1_in_queue]
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == song1_in_queue_api_wrap
 
     _clean_test_setup(client)
 

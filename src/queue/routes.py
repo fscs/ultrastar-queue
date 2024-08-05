@@ -28,7 +28,7 @@ queue_router = APIRouter(
 )
 
 queue_controller = QueueController()
-TIME_BETWEEN_SONGS = 60
+TIME_BETWEEN_SONGS: timedelta = timedelta(seconds=60)
 
 
 @queue_router.get("/")
@@ -45,9 +45,9 @@ async def add_song_to_queue(
         last_added: datetime | None = Cookie(None)
 ):
     if last_added is not None:
-        if last_added > (datetime.now() - timedelta(TIME_BETWEEN_SONGS)):
+        if last_added > (datetime.now() - TIME_BETWEEN_SONGS):
             raise CantSubmitSongHTTPException(
-                detail=f"Please wait {TIME_BETWEEN_SONGS} seconds before submitting a new song"
+                detail=f"Please wait {TIME_BETWEEN_SONGS} before submitting a new song"
             )
 
     song_in_db = await SessionController.get_song_by_id(session, requested_song.id)
