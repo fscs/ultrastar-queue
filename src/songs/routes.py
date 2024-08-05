@@ -18,7 +18,7 @@ song_router = APIRouter(
 )
 
 
-@song_router.get("/")
+@song_router.get("/", response_model=list[UltrastarSong])
 async def get_songs(
         session: AsyncSession = Depends(db_controller.get_session)
         ) -> list[UltrastarSong]:
@@ -56,6 +56,6 @@ async def create_song(
         song_data: UltrastarSongBase,
         session: AsyncSession = Depends(db_controller.get_session)
         ) -> UltrastarSong:
-    song = UltrastarSong(title=song_data.title, artist=song_data.artist, lyrics=song_data.lyrics)
+    song = UltrastarSong(**song_data.model_dump())
     song = await SessionController.add_song(session=session, song=song)
     return song

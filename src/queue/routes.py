@@ -58,10 +58,12 @@ async def add_song_to_queue(
 
     for queue_entry in queue_controller.get_queue():
         if queue_entry.song.__eq__(song_in_db):
-            raise SongAlreadyInQueueHTTPException(detail=f"Song {requested_song} is already in queue")
+            raise SongAlreadyInQueueHTTPException(detail=f"Song {requested_song.title} by {requested_song.artist} is "
+                                                         f"already in queue")
 
     if song_in_db in queue_controller.get_processed_songs():
-        raise SongAlreadySungHTTPException(detail=f"Song {requested_song} has already been sung today")
+        raise SongAlreadySungHTTPException(detail=f"Song {requested_song.title} by {requested_song.artist} has "
+                                                  f"already been sung today")
 
     song_in_queue = SongInQueue(song=song_in_db, singer=singer)
     if queue_controller.is_queue_open():

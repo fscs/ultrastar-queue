@@ -32,19 +32,23 @@ def test_get_empty_queue(client):
     assert response.json() == []
 
 
-def test_get_queue_with_one_song(client, song1_in_queue):
+def test_get_queue_with_one_song(client, song1_in_queue, song1_in_queue_api_wrap):
     _clean_test_setup(client)
     queue_controller.add_song_at_end(song1_in_queue)
 
     response = client.get("/queue/")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == [song1_in_queue.model_dump()]
+    assert response.json() == [song1_in_queue_api_wrap]
 
     _clean_test_setup(client)
 
 
-def test_get_queue_with_two_songs(client, song1_in_queue, song2_in_queue):
+def test_get_queue_with_two_songs(client,
+                                  song1_in_queue,
+                                  song2_in_queue,
+                                  song1_in_queue_api_wrap,
+                                  song2_in_queue_api_wrap):
     _clean_test_setup(client)
     queue_controller.add_song_at_end(song1_in_queue)
     queue_controller.add_song_at_end(song2_in_queue)
@@ -52,30 +56,39 @@ def test_get_queue_with_two_songs(client, song1_in_queue, song2_in_queue):
     response = client.get("/queue/")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == [song1_in_queue.model_dump(), song2_in_queue.model_dump()]
+    assert response.json() == [song1_in_queue_api_wrap, song2_in_queue_api_wrap]
 
     _clean_test_setup(client)
 
 
-def test_add_song_to_queue_with_correct_song_details(client, mock_db_query_get_song_by_id, song1, song1_in_queue):
+def test_add_song_to_queue_with_correct_song_details(client,
+                                                     mock_db_query_get_song_by_id,
+                                                     song1,
+                                                     song1_api_wrap,
+                                                     song1_in_queue,
+                                                     song1_in_queue_api_wrap):
     _clean_test_setup(client)
     mock_db_query_get_song_by_id.return_value = song1
 
-    response = client.post("/queue/add-song", json=song1.model_dump(), params={"singer": song1_in_queue.singer})
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 
     mock_db_query_get_song_by_id.assert_called_once_with(None, song1.id)
     assert queue_controller.get_queue() == [song1_in_queue]
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == song1_in_queue.model_dump()
+    assert response.json() == song1_in_queue_api_wrap
 
     _clean_test_setup(client)
 
 
-def test_add_song_to_queue_with_song_not_in_database(client, mock_db_query_get_song_by_id, song1, song1_in_queue):
+def test_add_song_to_queue_with_song_not_in_database(client,
+                                                     mock_db_query_get_song_by_id,
+                                                     song1,
+                                                     song1_api_wrap,
+                                                     song1_in_queue):
     _clean_test_setup(client)
     mock_db_query_get_song_by_id.return_value = None
 
-    response = client.post("/queue/add-song", json=song1.model_dump(), params={"singer": song1_in_queue.singer})
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 
     mock_db_query_get_song_by_id.assert_called_once_with(None, song1.id)
     assert response.status_code == SongNotInDatabaseHTTPException._default_status_code
@@ -87,7 +100,9 @@ def test_add_song_to_queue_with_song_not_in_database(client, mock_db_query_get_s
 
 def test_add_song_to_queue_with_mismatching_song_details(client,
                                                          mock_db_query_get_song_by_id,
-                                                         song1, song2, song1_in_queue):
+                                                         song1,
+                                                         song2,
+                                                         song1_in_queue):
     _clean_test_setup(client)
     mock_db_query_get_song_by_id.return_value = song1
     mismatched_song = {"id": song1.id, "title": song2.title, "artist": song2.artist, "lyrics": song2.lyrics}
@@ -102,12 +117,16 @@ def test_add_song_to_queue_with_mismatching_song_details(client,
     _clean_test_setup(client)
 
 
-def test_add_song_to_queue_with_closed_queue(client, mock_db_query_get_song_by_id, song1, song1_in_queue):
+def test_add_song_to_queue_with_closed_queue(client,
+                                             mock_db_query_get_song_by_id,
+                                             song1,
+                                             song1_api_wrap,
+                                             song1_in_queue):
     _clean_test_setup(client)
     queue_controller.close_queue()
     mock_db_query_get_song_by_id.return_value = song1
 
-    response = client.post("/queue/add-song", json=song1.model_dump(), params={"singer": song1_in_queue.singer})
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 
     mock_db_query_get_song_by_id.assert_called_once_with(None, song1.id)
     assert response.status_code == QueueClosedHTTPException._default_status_code
@@ -122,6 +141,7 @@ def test_add_song_to_queue_with_recently_added_song(client,
                                                     mock_queue_routes_datetime,
                                                     mock_db_query_get_song_by_id,
                                                     song1,
+                                                    song1_api_wrap,
                                                     song1_in_queue
                                                     ):
     _clean_test_setup(client)
@@ -129,7 +149,7 @@ def test_add_song_to_queue_with_recently_added_song(client,
     mock_db_query_get_song_by_id.return_value = song1
     client.cookies.update({"last_added": str(fake_datetime)})
 
-    response = client.post("/queue/add-song", json=song1.model_dump(), params={"singer": song1_in_queue.singer})
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 
     mock_queue_routes_datetime.now.assert_called_once()
     assert response.status_code == CantSubmitSongHTTPException._default_status_code
@@ -139,30 +159,38 @@ def test_add_song_to_queue_with_recently_added_song(client,
     _clean_test_setup(client)
 
 
-def test_add_song_to_queue_with_song_already_in_queue(client, song1, song1_in_queue, mock_db_query_get_song_by_id):
+def test_add_song_to_queue_with_song_already_in_queue(client,
+                                                      song1,
+                                                      song1_api_wrap,
+                                                      song1_in_queue,
+                                                      mock_db_query_get_song_by_id):
     _clean_test_setup(client)
     mock_db_query_get_song_by_id.return_value = song1
     queue_controller.add_song_at_end(song1_in_queue)
 
-    response = client.post("/queue/add-song", json=song1.model_dump(), params={"singer": song1_in_queue.singer})
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 
     assert response.status_code == SongAlreadyInQueueHTTPException._default_status_code
-    assert response.json() == {"detail": f"Song {song1} is already in queue"}
+    assert response.json() == {"detail": f"Song {song1.title} by {song1.artist} is already in queue"}
     assert queue_controller.get_queue() == [song1_in_queue]
 
     _clean_test_setup(client)
 
 
-def test_add_song_to_queue_with_song_aready_sung(client, song1, song1_in_queue, mock_db_query_get_song_by_id):
+def test_add_song_to_queue_with_song_aready_sung(client,
+                                                 song1,
+                                                 song1_api_wrap,
+                                                 song1_in_queue,
+                                                 mock_db_query_get_song_by_id):
     _clean_test_setup(client)
     mock_db_query_get_song_by_id.return_value = song1
     queue_controller.add_song_at_end(song1_in_queue)
     queue_controller.mark_first_song_as_processed()
 
-    response = client.post("/queue/add-song", json=song1.model_dump(), params={"singer": song1_in_queue.singer})
+    response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 
     assert response.status_code == SongAlreadySungHTTPException._default_status_code
-    assert response.json() == {"detail": f"Song {song1} has already been sung today"}
+    assert response.json() == {"detail": f"Song {song1.title} by {song1.artist} has already been sung today"}
     assert queue_controller.get_queue() == []
 
     _clean_test_setup(client)
@@ -182,7 +210,10 @@ def test_check_first_song_with_admin_privileges_and_empty_queue(client):
     app.dependency_overrides.pop(is_admin)
 
 
-def test_check_first_song_with_admin_privileges_and_one_song_in_queue(client, song1, song1_in_queue):
+def test_check_first_song_with_admin_privileges_and_one_song_in_queue(client,
+                                                                      song1,
+                                                                      song1_in_queue,
+                                                                      song1_in_queue_api_wrap):
     app.dependency_overrides[is_admin] = lambda: True
     _clean_test_setup(client)
     queue_controller.add_song_at_end(song1_in_queue)
@@ -190,7 +221,7 @@ def test_check_first_song_with_admin_privileges_and_one_song_in_queue(client, so
     response = client.put("/queue/check-first-song")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"checked": song1_in_queue.model_dump()}
+    assert response.json() == {"checked": song1_in_queue_api_wrap}
     assert queue_controller.get_queue() == []
     assert queue_controller._processed_songs == [song1]
 
@@ -198,7 +229,11 @@ def test_check_first_song_with_admin_privileges_and_one_song_in_queue(client, so
     app.dependency_overrides.pop(is_admin)
 
 
-def test_check_first_song_with_admin_privileges_and_two_songs_in_queue(client, song1, song1_in_queue, song2_in_queue):
+def test_check_first_song_with_admin_privileges_and_two_songs_in_queue(client,
+                                                                       song1,
+                                                                       song1_in_queue,
+                                                                       song1_in_queue_api_wrap,
+                                                                       song2_in_queue):
     app.dependency_overrides[is_admin] = lambda: True
     _clean_test_setup(client)
     queue_controller.add_song_at_end(song1_in_queue)
@@ -207,7 +242,7 @@ def test_check_first_song_with_admin_privileges_and_two_songs_in_queue(client, s
     response = client.put("/queue/check-first-song")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"checked": song1_in_queue.model_dump()}
+    assert response.json() == {"checked": song1_in_queue_api_wrap}
     assert queue_controller.get_queue() == [song2_in_queue]
     assert queue_controller._processed_songs == [song1]
 
@@ -244,7 +279,9 @@ def test_remove_song_from_queue_with_admin_privileges_and_empty_queue(client):
     app.dependency_overrides.pop(is_admin)
 
 
-def test_remove_song_from_queue_with_admin_privileges_and_song_in_queue(client, song1_in_queue):
+def test_remove_song_from_queue_with_admin_privileges_and_song_in_queue(client,
+                                                                        song1_in_queue,
+                                                                        song1_in_queue_api_wrap):
     app.dependency_overrides[is_admin] = lambda: True
     _clean_test_setup(client)
     queue_controller.add_song_at_end(song1_in_queue)
@@ -252,7 +289,7 @@ def test_remove_song_from_queue_with_admin_privileges_and_song_in_queue(client, 
     response = client.delete("/queue/remove-song", params={"index": 0})
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"deleted": song1_in_queue.model_dump()}
+    assert response.json() == {"deleted": song1_in_queue_api_wrap}
     assert queue_controller.get_queue() == []
 
     _clean_test_setup(client)

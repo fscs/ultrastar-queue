@@ -21,14 +21,9 @@ async def populate_database():
             print(f"Not an ultrastar file: {file_path}")
             print(e)
             continue
-        audio_duration = UltrastarFileParser.get_audio_duration(os.path.dirname(file_path), attr_dict["audio"])
-        attr_dict["audio_duration_in_seconds"] = audio_duration
         song_converter = UltrastarSongConverter(**attr_dict)
-        song_base: UltrastarSongBase = UltrastarSongBase(
-            title=song_converter.title,
-            artist=song_converter.artist,
-            lyrics=song_converter.lyrics
-        )
+        song_converter.set_audio_duration(os.path.dirname(file_path))
+        song_base: UltrastarSongBase = UltrastarSongBase(**song_converter.model_dump())
 
         # https://stackoverflow.com/questions/75150942/how-to-get-a-session-from-async-session-generator-fastapi-sqlalchemy
         generator = db_controller.get_session()

@@ -1,3 +1,5 @@
+from datetime import timedelta
+from typing import Dict, Any
 from unittest.mock import patch
 
 import pytest
@@ -25,6 +27,7 @@ def client():
 def song1_base() -> UltrastarSongBase:
     return UltrastarSongBase(title="Fire & Forgive",
                              artist="Powerwolf",
+                             audio_duration=timedelta(seconds=270),
                              lyrics="And we bring fire, sing fire, scream fire and forgive")
 
 
@@ -32,39 +35,67 @@ def song1_base() -> UltrastarSongBase:
 def song2_base() -> UltrastarSongBase:
     return UltrastarSongBase(title="Sainted by the Storm",
                              artist="Powerwolf",
+                             audio_duration=timedelta(seconds=222),
                              lyrics="All aboard kissed by the iron fist, we are sainted by the storm")
 
 
 @pytest.fixture()
-def song1_without_id() -> UltrastarSong:
-    return UltrastarSong(title="Fire & Forgive",
-                         artist="Powerwolf",
-                         lyrics="And we bring fire, sing fire, scream fire and forgive")
+def song3_base() -> UltrastarSongBase:
+    return UltrastarSongBase(title="Hardrock Hallelujah",
+                             artist="Lordi",
+                             audio_duration=timedelta(seconds=247),
+                             lyrics="The saints are crippled on this sinners night, "
+                                    "lost are the lambs with no guiding light")
 
 
 @pytest.fixture()
-def song1() -> UltrastarSong:
+def song1_base_api_wrap(song1_base) -> Dict[str, Any]:
+    song1_dict = song1_base.model_dump()
+    for key, value in song1_dict.items():
+        if type(value) is timedelta:
+            song1_dict[key] = value.total_seconds()
+    return song1_dict
+
+
+@pytest.fixture()
+def song1_without_id(song1_base) -> UltrastarSong:
+    return UltrastarSong(**song1_base.model_dump())
+
+
+@pytest.fixture()
+def song1(song1_base) -> UltrastarSong:
     return UltrastarSong(id=1,
-                         title="Fire & Forgive",
-                         artist="Powerwolf",
-                         lyrics="And we bring fire, sing fire, scream fire and forgive")
+                         **song1_base.model_dump())
 
 
 @pytest.fixture()
-def song2() -> UltrastarSong:
+def song2(song2_base) -> UltrastarSong:
     return UltrastarSong(id=2,
-                         title="Sainted by the Storm",
-                         artist="Powerwolf",
-                         lyrics="All aboard kissed by the iron fist, we are sainted by the storm")
+                         **song2_base.model_dump())
 
 
 @pytest.fixture()
-def song3() -> UltrastarSong:
+def song3(song3_base) -> UltrastarSong:
     return UltrastarSong(id=3,
-                         title="Hardrock Hallelujah",
-                         artist="Lordi",
-                         lyrics="The saints are crippled on this sinners night, "
-                                "lost are the lambs with no guiding light")
+                         **song3_base.model_dump())
+
+
+@pytest.fixture()
+def song1_api_wrap(song1) -> Dict[str, Any]:
+    song1_dict = song1.model_dump()
+    for key, value in song1_dict.items():
+        if type(value) is timedelta:
+            song1_dict[key] = value.total_seconds()
+    return song1_dict
+
+
+@pytest.fixture()
+def song2_api_wrap(song2) -> Dict[str, Any]:
+    song2_dict = song2.model_dump()
+    for key, value in song2_dict.items():
+        if type(value) is timedelta:
+            song2_dict[key] = value.total_seconds()
+    return song2_dict
 
 
 @pytest.fixture()
@@ -80,6 +111,22 @@ def song2_in_queue(song2) -> SongInQueue:
 @pytest.fixture()
 def song3_in_queue(song3) -> SongInQueue:
     return SongInQueue(song=song3, singer="Mr. Lordi")
+
+
+@pytest.fixture()
+def song1_in_queue_api_wrap(song1_api_wrap, song1_in_queue) -> Dict[str, Any]:
+    return {
+        "song": song1_api_wrap,
+        "singer": song1_in_queue.singer
+    }
+
+
+@pytest.fixture()
+def song2_in_queue_api_wrap(song2_api_wrap, song2_in_queue) -> Dict[str, Any]:
+    return {
+        "song": song2_api_wrap,
+        "singer": song2_in_queue.singer
+    }
 
 
 """mock_db"""
