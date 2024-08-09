@@ -7,6 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.database import DBController, SessionController
 from src.database.models import UltrastarSong
+from src.logging_controller.controller import setup_logging, get_db_logger
 from src.songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from src.ultrastar_file_parser.parser import UltrastarFileParser
 
@@ -18,11 +19,13 @@ async def populate_database():
         try:
             attr_dict = UltrastarFileParser.parse_file_for_ultrastar_song_attributes(file_path)
         except ValueError as e:
-            print(f"Not an ultrastar file: {file_path}")
-            print(e)
+            db_logger.error(e.args[0] + f"Probably not an ultrastar file: {file_path}\n")
             continue
         song_converter = UltrastarSongConverter(**attr_dict)
-        song_converter.set_audio_duration(os.path.dirname(file_path))
+        try:
+            song_converter.set_audio_duration(os.path.dirname(file_path))
+        except RuntimeError as e:
+            db_logger.error(e.args[0])
         song_base: UltrastarSongBase = UltrastarSongBase(**song_converter.model_dump())
 
         # https://stackoverflow.com/questions/75150942/how-to-get-a-session-from-async-session-generator-fastapi-sqlalchemy
@@ -34,9 +37,9 @@ async def populate_database():
         except StopAsyncIteration:
             pass
         if song:
-            print(f"{song.title} by {song.artist} added to db")
+            db_logger.info(f"{song.title} by {song.artist} added to db")
         else:
-            print(f"{song_base.title} by {song_base.artist} already in db")
+            db_logger.info(f"{song_base.title} by {song_base.artist} already in db")
 
 
 @asynccontextmanager
@@ -65,6 +68,8 @@ def setup_routers():
     app.include_router(admin_router)
 
 
+setup_logging()
+db_logger = get_db_logger()
 db_controller = DBController(config("DATABASE_URL"))
 app = FastAPI(lifespan=lifespan)
 setup_routers()
