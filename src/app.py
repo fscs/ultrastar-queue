@@ -56,8 +56,9 @@ async def lifespan(app: FastAPI):
     await db_controller.clean_db()
 
 
-def setup_routers():
-    from src.admin.routes import admin_router
+def create_app():
+    app = FastAPI(lifespan=lifespan)
+
     from src.auth.routes import auth_router
     from src.queue.routes import queue_router
     from src.songs.routes import song_router
@@ -65,14 +66,14 @@ def setup_routers():
     app.include_router(queue_router)
     app.include_router(song_router)
     app.include_router(auth_router)
-    app.include_router(admin_router)
+
+    return app
 
 
 setup_logging()
 db_logger = get_db_logger()
 db_controller = DBController(config("DATABASE_URL"))
-app = FastAPI(lifespan=lifespan)
-setup_routers()
+app = create_app()
 
 
 @app.get("/")

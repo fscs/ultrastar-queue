@@ -70,6 +70,7 @@ def test_add_song_to_queue_returns_correct_cookie(client,
                                                   song1_in_queue,
                                                   song1_in_queue_api_wrap):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_queue_routes_datetime.now.return_value = fake_datetime
     mock_db_query_get_song_by_id.return_value = song1
 
@@ -87,6 +88,7 @@ def test_add_song_to_queue_with_correct_song_details(client,
                                                      song1_in_queue,
                                                      song1_in_queue_api_wrap):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = song1
 
     response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
@@ -105,6 +107,7 @@ def test_add_song_to_queue_with_song_not_in_database(client,
                                                      song1_api_wrap,
                                                      song1_in_queue):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = None
 
     response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
@@ -123,6 +126,7 @@ def test_add_song_to_queue_with_mismatching_song_details(client,
                                                          song2,
                                                          song1_in_queue):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = song1
     mismatched_song = {"id": song1.id, "title": song2.title, "artist": song2.artist, "lyrics": song2.lyrics}
 
@@ -142,6 +146,7 @@ def test_add_song_to_queue_with_closed_queue(client,
                                              song1_api_wrap,
                                              song1_in_queue):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     queue_controller.close_queue()
     mock_db_query_get_song_by_id.return_value = song1
 
@@ -164,6 +169,7 @@ def test_add_song_to_queue_with_recently_added_song(client,
                                                     song1_in_queue
                                                     ):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_queue_routes_datetime.now.return_value = fake_datetime
     mock_db_query_get_song_by_id.return_value = song1
     client.cookies.update({"last_added": str(fake_datetime)})
@@ -189,6 +195,7 @@ def test_add_song_to_queue_with_song_added_a_while_ago(client,
                                                        song1_in_queue_api_wrap
                                                        ):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     client.cookies.update({"last_added": str(fake_datetime)})
     mock_queue_routes_datetime.now.return_value = fake_datetime_one_day_later
     mock_db_query_get_song_by_id.return_value = song1
@@ -210,6 +217,7 @@ def test_add_song_to_queue_with_song_already_in_queue(client,
                                                       song1_in_queue,
                                                       mock_db_query_get_song_by_id):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = song1
     queue_controller.add_song_at_end(song1_in_queue)
 
@@ -228,6 +236,7 @@ def test_add_song_to_queue_with_song_aready_sung(client,
                                                  song1_in_queue,
                                                  mock_db_query_get_song_by_id):
     _clean_test_setup(client)
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = song1
     queue_controller.add_song_at_end(song1_in_queue)
     queue_controller.mark_first_song_as_processed()
@@ -447,6 +456,111 @@ def test_clear_queue_controller_without_admin_privileges(client, song1_in_queue)
     assert response.status_code == NotEnoughPrivilegesHTTPException._default_status_code
     assert response.json() == {"detail": NotEnoughPrivilegesHTTPException._default_detail}
     assert queue_controller.get_queue() == [song1_in_queue]
+
+    _clean_test_setup(client)
+    app.dependency_overrides.pop(is_admin)
+
+
+def test_add_song_to_queue_as_admin_with_closed_queue(client,
+                                                      mock_db_query_get_song_by_id,
+                                                      song1,
+                                                      song1_api_wrap,
+                                                      song1_in_queue,
+                                                      song1_in_queue_api_wrap):
+    app.dependency_overrides[is_admin] = lambda: True
+    _clean_test_setup(client)
+    mock_db_query_get_song_by_id.return_value = song1
+    queue_controller.close_queue()
+
+    response = client.post("/queue/add-song-as-admin", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
+
+    assert queue_controller.get_queue() == [song1_in_queue]
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == song1_in_queue_api_wrap
+
+    _clean_test_setup(client)
+    app.dependency_overrides.pop(is_admin)
+
+
+def test_add_song_to_queue_as_admin_with_recently_added_song(client,
+                                                             fake_datetime,
+                                                             mock_queue_routes_datetime,
+                                                             mock_db_query_get_song_by_id,
+                                                             song1,
+                                                             song1_api_wrap,
+                                                             song1_in_queue,
+                                                             song1_in_queue_api_wrap):
+    app.dependency_overrides[is_admin] = lambda: True
+    _clean_test_setup(client)
+    mock_queue_routes_datetime.now.return_value = fake_datetime
+    mock_db_query_get_song_by_id.return_value = song1
+    client.cookies.update({"last_added": str(fake_datetime)})
+
+    response = client.post("/queue/add-song-as-admin", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
+
+    assert queue_controller.get_queue() == [song1_in_queue]
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == song1_in_queue_api_wrap
+
+    _clean_test_setup(client)
+    app.dependency_overrides.pop(is_admin)
+
+
+def test_add_song_to_queue_as_admin_with_song_already_in_queue(client,
+                                                               song1,
+                                                               song1_api_wrap,
+                                                               song1_in_queue,
+                                                               song1_in_queue_api_wrap,
+                                                               mock_db_query_get_song_by_id):
+    app.dependency_overrides[is_admin] = lambda: True
+    _clean_test_setup(client)
+    mock_db_query_get_song_by_id.return_value = song1
+    queue_controller.add_song_at_end(song1_in_queue)
+
+    response = client.post("/queue/add-song-as-admin", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
+
+    assert queue_controller.get_queue() == [song1_in_queue, song1_in_queue]
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == song1_in_queue_api_wrap
+
+    _clean_test_setup(client)
+    app.dependency_overrides.pop(is_admin)
+
+
+def test_add_song_to_queue_as_admin_with_song_aready_sung(client,
+                                                          song1,
+                                                          song1_api_wrap,
+                                                          song1_in_queue,
+                                                          song1_in_queue_api_wrap,
+                                                          mock_db_query_get_song_by_id):
+    app.dependency_overrides[is_admin] = lambda: True
+    _clean_test_setup(client)
+    mock_db_query_get_song_by_id.return_value = song1
+    queue_controller.add_song_at_end(song1_in_queue)
+    queue_controller.mark_first_song_as_processed()
+
+    response = client.post("/queue/add-song-as-admin", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
+
+    assert queue_controller.get_queue() == [song1_in_queue]
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == song1_in_queue_api_wrap
+
+    _clean_test_setup(client)
+    app.dependency_overrides.pop(is_admin)
+
+
+def test_add_song_to_queue_as_admin_without_admin_privileges(client,
+                                                             song1,
+                                                             song1_api_wrap,
+                                                             song1_in_queue):
+    app.dependency_overrides[is_admin] = overrides_is_admin_as_false
+    _clean_test_setup(client)
+
+    response = client.post("/queue/add-song-as-admin", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
+
+    assert response.status_code == NotEnoughPrivilegesHTTPException._default_status_code
+    assert response.json() == {"detail": NotEnoughPrivilegesHTTPException._default_detail}
+    assert queue_controller.get_queue() == []
 
     _clean_test_setup(client)
     app.dependency_overrides.pop(is_admin)
