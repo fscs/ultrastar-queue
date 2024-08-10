@@ -9,7 +9,7 @@ from src.app import app
 from src.app import db_controller
 from src.database.models import UltrastarSong
 from src.queue.routes import datetime
-from src.queue.schemas import SongInQueue
+from src.queue.schemas import SongInQueue, ProcessedSong
 from src.songs.schemas import UltrastarSongBase
 
 
@@ -129,6 +129,16 @@ def song2_in_queue_api_wrap(song2_api_wrap, song2_in_queue) -> Dict[str, Any]:
     }
 
 
+@pytest.fixture()
+def song1_in_processed_queue(song1, fake_datetime) -> ProcessedSong:
+    return ProcessedSong(song=song1, processed_at=fake_datetime)
+
+
+@pytest.fixture()
+def song2_in_processed_queue(song2, fake_datetime) -> ProcessedSong:
+    return ProcessedSong(song=song2, processed_at=fake_datetime)
+
+
 """mock_db"""
 
 
@@ -220,6 +230,14 @@ def fake_datetime_one_day_later() -> datetime:
 @pytest.fixture()
 def mock_queue_routes_datetime(fake_datetime):
     patcher = patch('src.queue.routes.datetime')
+    mock = patcher.start()
+    yield mock
+    patcher.stop()
+
+
+@pytest.fixture()
+def mock_queue_controller_datetime(fake_datetime):
+    patcher = patch('src.queue.controller.datetime')
     mock = patcher.start()
     yield mock
     patcher.stop()

@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.database import DBController, SessionController
-from src.database.models import UltrastarSong
+from src.database.models import UltrastarSong, User
 from src.logging_controller.controller import setup_logging, get_db_logger
 from src.songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from src.ultrastar_file_parser.parser import UltrastarFileParser
@@ -42,11 +42,26 @@ async def populate_database():
             db_logger.info(f"{song_base.title} by {song_base.artist} already in db")
 
 
+async def add_users_to_db():
+    pw = "$2b$12$VBJFBBwpnnvb9dy.NHdPnOcliuN1pkOPBUMHkfNX8cFJWjl8GlM5O"
+    generator = db_controller.get_session()
+    session: AsyncSession = (await anext(generator))
+    user1 = User(username="bestUser", is_admin=False, hashed_password=pw)
+    user2 = User(username="bestAdmin", is_admin=True, hashed_password=pw)
+    await SessionController.add_user(session, user1)
+    await SessionController.add_user(session, user2)
+    try:
+        await anext(generator)
+    except StopAsyncIteration:
+        pass
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await db_controller.init_db()
     try:
         await populate_database()
+        await add_users_to_db()
     except FileNotFoundError as e:
         if e.args[0] == "Could not find path: ":
             raise FileNotFoundError("Please make sure, that a path to ultrastar files is configured in .env")

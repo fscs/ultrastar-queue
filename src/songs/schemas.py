@@ -49,9 +49,3 @@ class UltrastarSongConverter(BaseModel):
                                 "supported extensions": TinyTag.SUPPORTED_FILE_EXTENSIONS})
         audio = TinyTag.get(audio_path)
         self.audio_duration = timedelta(seconds=round(audio.duration))
-
-    """def model_post_init(self, __context: Any) -> None:
-        self.audio_duration: timedelta | None = (
-            timedelta(seconds=round(float(self.audio_duration_in_seconds)))
-            if len(self.audio_duration_in_seconds) > 0
-            else None)"""

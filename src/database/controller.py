@@ -6,7 +6,7 @@ from sqlmodel import SQLModel
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from .models import UltrastarSong
+from .models import UltrastarSong, User
 
 
 class DBController:
@@ -76,3 +76,15 @@ class SessionController:
         if matching_songs:
             return None
         return await cls.add_song(session, song)
+
+    @staticmethod
+    async def get_user_by_username(session: AsyncSession, username: str) -> User | None:
+        user = await session.get(User, username)
+        return user
+
+    @staticmethod
+    async def add_user(session: AsyncSession, user: User) -> User:
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return user

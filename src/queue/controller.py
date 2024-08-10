@@ -1,19 +1,20 @@
-from src.database.models import UltrastarSong
+from datetime import datetime
+
 from .exceptions import QueueEmptyError, QueueIndexError
-from .schemas import SongInQueue
+from .schemas import SongInQueue, ProcessedSong
 
 
 class QueueController:
 
     def __init__(self):
         self._queue: list[SongInQueue] = []
-        self._processed_songs: list[UltrastarSong] = []
+        self._processed_songs: list[ProcessedSong] = []
         self._queue_is_open: bool = True
 
     def get_queue(self) -> list[SongInQueue]:
         return self._queue.copy()
 
-    def get_processed_songs(self) -> list[UltrastarSong]:
+    def get_processed_songs(self) -> list[ProcessedSong]:
         return self._processed_songs.copy()
 
     def is_queue_open(self) -> bool:
@@ -29,10 +30,10 @@ class QueueController:
 
     def mark_first_song_as_processed(self):
         try:
-            removed = self._queue.pop(0)
+            removed: SongInQueue = self._queue.pop(0)
         except IndexError as exc:
             raise QueueEmptyError() from exc
-        self._processed_songs.append(removed.song)
+        self._processed_songs.append(ProcessedSong(song=removed.song, processed_at=datetime.now()))
         return removed
 
     def remove_song_by_index(self, index: int):

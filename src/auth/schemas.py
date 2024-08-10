@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from sqlmodel import SQLModel
 
 
 class Token(BaseModel):
@@ -9,8 +8,3 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
-
-
-class UserBase(SQLModel):
-    username: str
-    is_admin: bool = False

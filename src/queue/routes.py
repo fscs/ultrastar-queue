@@ -61,9 +61,10 @@ async def add_song_to_queue(
             raise SongAlreadyInQueueHTTPException(detail=f"Song {requested_song.title} by {requested_song.artist} is "
                                                          f"already in queue")
 
-    if song_in_db in queue_controller.get_processed_songs():
-        raise SongAlreadySungHTTPException(detail=f"Song {requested_song.title} by {requested_song.artist} has "
-                                                  f"already been sung today")
+    for queue_entry in queue_controller.get_processed_songs():
+        if queue_entry.song.__eq__(song_in_db):
+            raise SongAlreadySungHTTPException(detail=f"Song {requested_song.title} by {requested_song.artist} has "
+                                                      f"already been sung today")
 
     song_in_queue = SongInQueue(song=song_in_db, singer=singer)
     if queue_controller.is_queue_open():
@@ -84,7 +85,6 @@ async def add_song_to_queue_as_admin(
         singer: str,
         session: AsyncSession = Depends(db_controller.get_session)
 ):
-
     song_in_db = await SessionController.get_song_by_id(session, requested_song.id)
     if not song_in_db:
         raise SongNotInDatabaseHTTPException()

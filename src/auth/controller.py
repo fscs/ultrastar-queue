@@ -7,9 +7,11 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
+from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.app import db_controller
+from src.database import SessionController
 from src.database.models import User
-from src.fake import fake_users
 from .exceptions import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
 from .schemas import TokenData
 
@@ -31,12 +33,13 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str) -> User:
-    if username in db:
-        return User(**db[username])
+async def get_user(session: AsyncSession, username: str) -> User | None:
+    user = await SessionController.get_user_by_username(session, username)
+    return user
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
+                           session: Annotated[AsyncSession, Depends(db_controller.get_session)]) -> User:
     try:
         payload = jwt.decode(token, JWT_SIGNING_SECRET_KEY, algorithms=[JWT_ALGORITHM])
         username: str = payload.get("sub")
@@ -45,7 +48,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise CredentialsHTTPException()
-    user = get_user(fake_users, username=token_data.username)
+    user = await get_user(session, username=token_data.username)
     if user is None:
         raise CredentialsHTTPException()
     return user
@@ -57,12 +60,12 @@ async def is_admin(user: Annotated[User, Depends(get_current_user)]) -> User:
     return user
 
 
-def authenticate_user(db, username: str, password: str):
-    user = get_user(db, username)
+async def authenticate_user(session: AsyncSession, username: str, password: str) -> User | None:
+    user = await get_user(session, username)
     if not user:
-        return False
+        return None
     if not verify_password(password, user.hashed_password):
-        return False
+        return None
     return user
 
 

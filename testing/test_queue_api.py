@@ -267,9 +267,13 @@ def test_check_first_song_with_admin_privileges_and_empty_queue(client):
 def test_check_first_song_with_admin_privileges_and_one_song_in_queue(client,
                                                                       song1,
                                                                       song1_in_queue,
-                                                                      song1_in_queue_api_wrap):
+                                                                      song1_in_queue_api_wrap,
+                                                                      song1_in_processed_queue,
+                                                                      mock_queue_controller_datetime,
+                                                                      fake_datetime):
     app.dependency_overrides[is_admin] = lambda: True
     _clean_test_setup(client)
+    mock_queue_controller_datetime.now.return_value = fake_datetime
     queue_controller.add_song_at_end(song1_in_queue)
 
     response = client.put("/queue/check-first-song")
@@ -277,7 +281,7 @@ def test_check_first_song_with_admin_privileges_and_one_song_in_queue(client,
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"checked": song1_in_queue_api_wrap}
     assert queue_controller.get_queue() == []
-    assert queue_controller._processed_songs == [song1]
+    assert queue_controller._processed_songs == [song1_in_processed_queue]
 
     _clean_test_setup(client)
     app.dependency_overrides.pop(is_admin)
@@ -287,9 +291,13 @@ def test_check_first_song_with_admin_privileges_and_two_songs_in_queue(client,
                                                                        song1,
                                                                        song1_in_queue,
                                                                        song1_in_queue_api_wrap,
-                                                                       song2_in_queue):
+                                                                       song1_in_processed_queue,
+                                                                       song2_in_queue,
+                                                                       mock_queue_controller_datetime,
+                                                                       fake_datetime):
     app.dependency_overrides[is_admin] = lambda: True
     _clean_test_setup(client)
+    mock_queue_controller_datetime.now.return_value = fake_datetime
     queue_controller.add_song_at_end(song1_in_queue)
     queue_controller.add_song_at_end(song2_in_queue)
 
@@ -298,7 +306,7 @@ def test_check_first_song_with_admin_privileges_and_two_songs_in_queue(client,
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"checked": song1_in_queue_api_wrap}
     assert queue_controller.get_queue() == [song2_in_queue]
-    assert queue_controller._processed_songs == [song1]
+    assert queue_controller._processed_songs == [song1_in_processed_queue]
 
     _clean_test_setup(client)
     app.dependency_overrides.pop(is_admin)
