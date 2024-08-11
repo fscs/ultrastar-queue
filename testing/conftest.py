@@ -114,6 +114,17 @@ def song3_in_queue(song3) -> SongInQueue:
 
 
 @pytest.fixture()
+def song_without_audio_duration_in_queue() -> SongInQueue:
+    return SongInQueue(song=UltrastarSong(id=4,
+                                          title="Blood Red Sandman",
+                                          artist="Lordi",
+                                          audio_duration=None,
+                                          lyrics="They called me the Leather Apron, "
+                                                 "they called me Smiling Jack"),
+                       singer="singer")
+
+
+@pytest.fixture()
 def song1_in_queue_api_wrap(song1_api_wrap, song1_in_queue) -> Dict[str, Any]:
     return {
         "song": song1_api_wrap,
@@ -220,11 +231,6 @@ def mock_queue_controller_clear_queue():
 @pytest.fixture()
 def fake_datetime() -> datetime:
     return datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
-
-
-@pytest.fixture()
-def fake_datetime_one_day_later() -> datetime:
-    return datetime(year=2021, month=1, day=2, hour=1, minute=1, second=1)
 
 
 @pytest.fixture()

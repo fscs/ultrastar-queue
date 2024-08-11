@@ -14,10 +14,12 @@ from .exceptions import (QueueClosedHTTPException,
                          QueueIndexError,
                          QueueIndexHTTPException,
                          SongAlreadySungHTTPException,
+                         SongRecentlySungHTTPException,
                          CantSubmitSongHTTPException,
                          SongNotInDatabaseHTTPException,
                          SongAlreadyInQueueHTTPException,
-                         MismatchingSongDataHTTPException)
+                         MismatchingSongDataHTTPException,
+                         NotAValidNumberHTTPException)
 from .schemas import SongInQueue
 
 queue_router = APIRouter(
@@ -28,12 +30,12 @@ queue_router = APIRouter(
 )
 
 queue_controller = QueueController()
-TIME_BETWEEN_SONGS: timedelta = timedelta(seconds=60)
+TIME_BETWEEN_SUBMITTING_SONGS: timedelta = timedelta(seconds=60)
 
 
 @queue_router.get("/")
-async def get_queue():
-    return queue_controller.get_queue()
+def get_queue():
+    return queue_controller.queue
 
 
 @queue_router.post("/add-song", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
@@ -45,9 +47,9 @@ async def add_song_to_queue(
         last_added: datetime | None = Cookie(None)
 ):
     if last_added is not None:
-        if last_added > (datetime.now() - TIME_BETWEEN_SONGS):
+        if last_added > (datetime.now() - TIME_BETWEEN_SUBMITTING_SONGS):
             raise CantSubmitSongHTTPException(
-                detail=f"Please wait {TIME_BETWEEN_SONGS} before submitting a new song"
+                detail=f"Please wait {TIME_BETWEEN_SUBMITTING_SONGS} before submitting a new song"
             )
 
     song_in_db = await SessionController.get_song_by_id(session, requested_song.id)
@@ -56,21 +58,24 @@ async def add_song_to_queue(
     elif (requested_song.title != song_in_db.title) or (requested_song.artist != song_in_db.artist):
         raise MismatchingSongDataHTTPException()
 
-    for queue_entry in queue_controller.get_queue():
-        if queue_entry.song.__eq__(song_in_db):
-            raise SongAlreadyInQueueHTTPException(detail=f"Song {requested_song.title} by {requested_song.artist} is "
-                                                         f"already in queue")
+    if queue_controller.is_song_in_queue(song_in_db):
+        raise SongAlreadyInQueueHTTPException(detail=f"Song {song_in_db.title} by {song_in_db.artist} is "
+                                                     f"already in queue")
 
-    for queue_entry in queue_controller.get_processed_songs():
-        if queue_entry.song.__eq__(song_in_db):
-            raise SongAlreadySungHTTPException(detail=f"Song {requested_song.title} by {requested_song.artist} has "
-                                                      f"already been sung today")
+    if not queue_controller.is_queue_open():
+        raise QueueClosedHTTPException()
+
+    if queue_controller.has_song_been_sung_max_times(song_in_db):
+        raise SongAlreadySungHTTPException(detail=f"Song {song_in_db.title} by {song_in_db.artist} has "
+                                                  f"already been sung a few times today. Please choose another one.")
+
+    if not queue_controller.will_time_between_songs_have_passed_until_end_of_queue(song_in_db):
+        raise SongRecentlySungHTTPException(detail=f"Song {song_in_db.title} by {song_in_db.artist} has "
+                                                   "been sung recently. Please choose another one.")
 
     song_in_queue = SongInQueue(song=song_in_db, singer=singer)
-    if queue_controller.is_queue_open():
-        queue_controller.add_song_at_end(song_in_queue)
-    else:
-        raise QueueClosedHTTPException()
+
+    queue_controller.add_song_at_end(song_in_queue)
 
     response.set_cookie("last_added", str(datetime.now()), httponly=True)
     return song_in_queue
@@ -98,7 +103,7 @@ async def add_song_to_queue_as_admin(
 
 
 @queue_router.put("/check-first-song", dependencies=[Depends(is_admin)])
-async def check_first_song_in_queue():
+def check_first_song_in_queue():
     try:
         checked = queue_controller.mark_first_song_as_processed()
     except QueueEmptyError as err:
@@ -107,7 +112,7 @@ async def check_first_song_in_queue():
 
 
 @queue_router.delete("/remove-song", dependencies=[Depends(is_admin)])
-async def remove_song_from_queue(index: int):
+def remove_song_from_queue(index: int):
     try:
         removed = queue_controller.remove_song_by_index(index)
     except QueueIndexError as err:
@@ -116,18 +121,36 @@ async def remove_song_from_queue(index: int):
 
 
 @queue_router.delete("/clear-queue", dependencies=[Depends(is_admin)])
-async def clear_queue():
+def clear_queue():
     queue_controller.clear_queue()
     return {"message": "Queue cleared"}
 
 
 @queue_router.delete("/clear-processed-songs", dependencies=[Depends(is_admin)])
-async def clear_processed_songs():
+def clear_processed_songs():
     queue_controller.clear_processed_songs()
     return {"message": "Processed songs cleared"}
 
 
 @queue_router.delete("/clear-queue-controller", dependencies=[Depends(is_admin)])
-async def clear_queue_controller():
+def clear_queue_controller():
     queue_controller.clear_queue_controller()
     return {"message": "Queue controller cleared"}
+
+
+@queue_router.put("/set-time-between-same-song", dependencies=[Depends(is_admin)])
+def set_time_between_same_song(seconds: int):
+    try:
+        queue_controller.time_between_same_song = timedelta(seconds=seconds)
+    except ValueError as err:
+        raise NotAValidNumberHTTPException(detail=err.args[0])
+    return {"message": f"Set time to {timedelta(seconds=seconds)} between songs"}
+
+
+@queue_router.put("/set-max-times-song-can-be-sung", dependencies=[Depends(is_admin)])
+def set_max_times_song_can_be_sung(max_times: int):
+    try:
+        queue_controller.max_times_song_can_be_sung = max_times
+    except ValueError as err:
+        raise NotAValidNumberHTTPException(detail=err.args[0])
+    return {"message": f"Set max times the same song can be sung to {max_times}"}

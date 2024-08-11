@@ -127,3 +127,31 @@ class SongAlreadySungHTTPException(HTTPException):
         self.status_code: int = status_code
         self.detail: str = detail
         self.headers: Dict[str, str] = headers
+
+
+class SongRecentlySungHTTPException(HTTPException):
+    _default_status_code: int = status.HTTP_400_BAD_REQUEST
+    _default_detail: str = f"Requested Song has been sung recently"
+
+    def __init__(self,
+                 status_code: int = _default_status_code,
+                 detail: str = _default_detail,
+                 headers: Dict[str, str] = None
+                 ) -> None:
+        self.status_code: int = status_code
+        self.detail: str = detail
+        self.headers: Dict[str, str] = headers
+
+
+class NotAValidNumberHTTPException(HTTPException):
+    _default_status_code: int = status.HTTP_400_BAD_REQUEST
+    _default_detail: str = f"Not a valid number"
+
+    def __init__(self,
+                 status_code: int = _default_status_code,
+                 detail: str = _default_detail,
+                 headers: Dict[str, str] = None
+                 ) -> None:
+        self.status_code: int = status_code
+        self.detail: str = detail
+        self.headers: Dict[str, str] = headers
