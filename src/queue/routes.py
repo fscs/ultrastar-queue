@@ -144,7 +144,7 @@ def set_time_between_same_song(seconds: int):
         queue_controller.time_between_same_song = timedelta(seconds=seconds)
     except ValueError as err:
         raise NotAValidNumberHTTPException(detail=err.args[0])
-    return {"message": f"Set time to {timedelta(seconds=seconds)} between songs"}
+    return {"message": f"Set time to {timedelta(seconds=seconds)} between submitting the same song"}
 
 
 @queue_router.put("/set-max-times-song-can-be-sung", dependencies=[Depends(is_admin)])
@@ -154,3 +154,13 @@ def set_max_times_song_can_be_sung(max_times: int):
     except ValueError as err:
         raise NotAValidNumberHTTPException(detail=err.args[0])
     return {"message": f"Set max times the same song can be sung to {max_times}"}
+
+
+@queue_router.put("/set-time-between-submitting-songs", dependencies=[Depends(is_admin)])
+def set_time_between_submitting_songs(seconds: int, minutes: int, hours: int):
+    time_between_submitting_songs = timedelta(seconds=seconds, minutes=minutes, hours=hours)
+    if time_between_submitting_songs.total_seconds() < 0:
+        raise NotAValidNumberHTTPException(detail="Time cannot be negative")
+    global TIME_BETWEEN_SUBMITTING_SONGS
+    TIME_BETWEEN_SUBMITTING_SONGS = time_between_submitting_songs
+    return {"message": f"Set time between submitting songs to {TIME_BETWEEN_SUBMITTING_SONGS.total_seconds()} seconds"}

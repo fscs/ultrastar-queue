@@ -8,7 +8,8 @@ from fastapi.testclient import TestClient
 from src.app import app
 from src.app import db_controller
 from src.database.models import UltrastarSong
-from src.queue.routes import datetime
+from src.queue import routes as queue_routes
+from src.queue.routes import datetime, TIME_BETWEEN_SUBMITTING_SONGS
 from src.queue.schemas import SongInQueue, ProcessedSong
 from src.songs.schemas import UltrastarSongBase
 

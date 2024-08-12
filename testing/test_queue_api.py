@@ -656,7 +656,7 @@ def test_set_time_between_same_song_to_zero(client):
     response = client.put("/queue/set-time-between-same-song", params={"seconds": 0})
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"message": f"Set time to {timedelta(seconds=0)} between songs"}
+    assert response.json() == {"message": f"Set time to {timedelta(seconds=0)} between submitting the same song"}
     assert queue_controller.time_between_same_song == timedelta(seconds=0)
 
     app.dependency_overrides.pop(is_admin)
@@ -670,7 +670,7 @@ def test_set_time_between_same_song_to_greater_than_zero(client):
     response = client.put("/queue/set-time-between-same-song", params={"seconds": 120})
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"message": f"Set time to {timedelta(seconds=120)} between songs"}
+    assert response.json() == {"message": f"Set time to {timedelta(seconds=120)} between submitting the same song"}
     assert queue_controller.time_between_same_song == timedelta(seconds=120)
 
     app.dependency_overrides.pop(is_admin)
