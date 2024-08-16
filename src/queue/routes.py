@@ -38,10 +38,10 @@ def get_queue():
     return queue_controller.queue
 
 
-@queue_router.post("/add-song", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
+@queue_router.get("/add-song", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
 async def add_song_to_queue(
         response: Response,
-        requested_song: UltrastarSong,
+        requested_song_id: int,
         singer: str,
         session: AsyncSession = Depends(db_controller.get_session),
         last_added: datetime | None = Cookie(None)
@@ -52,11 +52,9 @@ async def add_song_to_queue(
                 detail=f"Please wait {TIME_BETWEEN_SUBMITTING_SONGS} before submitting a new song"
             )
 
-    song_in_db = await SessionController.get_song_by_id(session, requested_song.id)
+    song_in_db = await SessionController.get_song_by_id(session, requested_song_id)
     if not song_in_db:
         raise SongNotInDatabaseHTTPException()
-    elif (requested_song.title != song_in_db.title) or (requested_song.artist != song_in_db.artist):
-        raise MismatchingSongDataHTTPException()
 
     if queue_controller.is_song_in_queue(song_in_db):
         raise SongAlreadyInQueueHTTPException(detail=f"Song {song_in_db.title} by {song_in_db.artist} is "

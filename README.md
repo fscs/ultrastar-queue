@@ -19,3 +19,6 @@
 - https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory
   - used for src/ultrastar_file_parser UltrastarFileParser.get_song_file_paths()
 - https://usdx.eu/format/#specs
+
+## Used bootstrap
+- routes/+layout.svelte => bootstrap/examples/navbar-fixed
