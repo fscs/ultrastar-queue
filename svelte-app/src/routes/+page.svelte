@@ -2,6 +2,7 @@
     import {SongStore} from "../song-store.js"
     import {onMount} from "svelte"
     import {goto} from "$app/navigation";
+    export const prerender = true;
 
     onMount(async () => {
         if (!$SongStore.length) {
@@ -13,22 +14,25 @@
     });
 </script>
 
+<div class="table-responsive">
 <table class="table  table-striped">
     <thead>
         <tr>
             <th scope="col">Title</th>
             <th scope="col">Artist</th>
             <th scope="col">Duration</th>
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
         {#each $SongStore as song}
             <tr>
-                <th scope="row"><a href="{song.id}">{song.title}</a></th>
-                <th>{song.artist}</th>
-                <th>{song.audio_duration}</th>
-                <th><button type="button" class="btn btn-primary" on:click={() => goto(song.id+"/add")}>Add</button></th>
+                <td><a href="{song.id}">{song.title}</a></td>
+                <td>{song.artist}</td>
+                <td>{song.audio_duration}</td>
+                <td><button type="button" class="btn btn-primary" on:click={() => goto(song.id+"/add")}>Add</button></td>
             </tr>
         {/each}
     </tbody>
 </table>
+    </div>

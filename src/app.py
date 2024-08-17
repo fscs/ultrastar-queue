@@ -10,6 +10,7 @@ from src.database.models import UltrastarSong, User
 from src.logging_controller.controller import setup_logging, get_db_logger
 from src.songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from src.ultrastar_file_parser.parser import UltrastarFileParser
+from fastapi.middleware.cors import CORSMiddleware
 
 
 async def populate_database():
@@ -81,6 +82,18 @@ def create_app():
     app.include_router(queue_router)
     app.include_router(song_router)
     app.include_router(auth_router)
+
+    origins = [
+        "http://localhost:5173",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     return app
 

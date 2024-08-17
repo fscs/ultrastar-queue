@@ -22,3 +22,6 @@
 
 ## Used bootstrap
 - routes/+layout.svelte => bootstrap/examples/navbar-fixed
+- routes/login/+page.svelte => bootstrap/examples/heroes
+- routes/settings/+page.svelte => bootstrap/examples/Cheatsheet
+  - bootstrap/examples/modals

@@ -1,19 +1,17 @@
 <script>
-    import {SongStore} from "../../../song-store.js";
+
     import {goto} from "$app/navigation";
+    export let singer = ""
+export let data;
 
-
-    export let data;
-    let singer = ""
-
-
-    let handleSubmit = () => {
+    export const handleSubmit = () => {
 
         const endpoint = ("http://localhost:8000/queue/add-song?requested_song_id="+data.id+"&singer="+singer)
         fetch(endpoint, {method: "GET"}).then(
             response => response.json())
         goto("/queue/")
     }
+
 </script>
 
 <form on:submit|once|preventDefault={handleSubmit}>
