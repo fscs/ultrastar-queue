@@ -31,6 +31,7 @@ queue_router = APIRouter(
 
 queue_controller = QueueController()
 TIME_BETWEEN_SUBMITTING_SONGS: timedelta = timedelta(seconds=60)
+SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED: bool = True
 
 
 @queue_router.get("/")
@@ -138,6 +139,11 @@ def clear_queue_controller():
     return {"message": "Queue controller cleared"}
 
 
+@queue_router.get("/get-time-between-same-song", dependencies=[Depends(is_admin)])
+def get_time_between_same_song() -> timedelta:
+    return queue_controller.time_between_same_song
+
+
 @queue_router.put("/set-time-between-same-song", dependencies=[Depends(is_admin)])
 def set_time_between_same_song(seconds: int):
     try:
@@ -145,6 +151,11 @@ def set_time_between_same_song(seconds: int):
     except ValueError as err:
         raise NotAValidNumberHTTPException(detail=err.args[0])
     return {"message": f"Set time to {timedelta(seconds=seconds)} between submitting the same song"}
+
+
+@queue_router.get("/get-max-times-song-can-be-sung", dependencies=[Depends(is_admin)])
+def get_max_times_song_can_be_sung() -> int:
+    return queue_controller.max_times_song_can_be_sung
 
 
 @queue_router.put("/set-max-times-song-can-be-sung", dependencies=[Depends(is_admin)])
@@ -156,6 +167,11 @@ def set_max_times_song_can_be_sung(max_times: int):
     return {"message": f"Set max times the same song can be sung to {max_times}"}
 
 
+@queue_router.get("/get-time-between-submitting-songs", dependencies=[Depends(is_admin)])
+def get_time_between_submitting_songs() -> timedelta:
+    return TIME_BETWEEN_SUBMITTING_SONGS
+
+
 @queue_router.put("/set-time-between-submitting-songs", dependencies=[Depends(is_admin)])
 def set_time_between_submitting_songs(seconds: int, minutes: int, hours: int):
     time_between_submitting_songs = timedelta(seconds=seconds, minutes=minutes, hours=hours)
@@ -164,3 +180,13 @@ def set_time_between_submitting_songs(seconds: int, minutes: int, hours: int):
     global TIME_BETWEEN_SUBMITTING_SONGS
     TIME_BETWEEN_SUBMITTING_SONGS = time_between_submitting_songs
     return {"message": f"Set time between submitting songs to {TIME_BETWEEN_SUBMITTING_SONGS.total_seconds()} seconds"}
+
+@queue_router.get("/get-block-submitting-songs-in-timeframe", dependencies=[Depends(is_admin)])
+def get_blocks_submitting_songs_in_timeframe() -> bool:
+    return SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED
+
+@queue_router.put("/block-submitting-songs-in-timeframe", dependencies=[Depends(is_admin)])
+def block_submitting_songs_in_timeframe(block_submitting: bool):
+    global SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED
+    SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED = block_submitting
+    return {"message": f"Set block submitting songs in timeframe to {SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED}"}
