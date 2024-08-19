@@ -1,6 +1,7 @@
 <script>
     import {SongStore} from "../../song-store.js";
     import {onMount} from "svelte";
+    import {goto} from "$app/navigation";
     export let data;
     let song;
 
@@ -24,4 +25,5 @@
     <p>{song.artist}</p>
     <p>{song.audio_duration}</p>
     <p>{song.lyrics}</p>
+    <button type="button" class="btn btn-primary" on:click={() => goto(song.id+"/add")}>Add</button>
 {/if}

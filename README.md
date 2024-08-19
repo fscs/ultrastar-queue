@@ -19,9 +19,11 @@
 - https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory
   - used for src/ultrastar_file_parser UltrastarFileParser.get_song_file_paths()
 - https://usdx.eu/format/#specs
+- https://www.youtube.com/watch?v=aFxcq0XTmRg
+  - used for svelte-app/src/lib/Login.svelte
 
 ## Used bootstrap
 - routes/+layout.svelte => bootstrap/examples/navbar-fixed
-- routes/login/+page.svelte => bootstrap/examples/heroes
+- lib/Login.svelte => bootstrap/examples/heroes
 - routes/settings/+page.svelte => bootstrap/examples/Cheatsheet
   - bootstrap/examples/modals

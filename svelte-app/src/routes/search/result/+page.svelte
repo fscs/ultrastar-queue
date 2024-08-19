@@ -1,17 +1,13 @@
 <script>
-    import {SongStore} from "../song-store.js"
-    import {onMount} from "svelte"
-    import {goto} from "$app/navigation";
+    import {onMount} from "svelte";
     import SongTable from "$lib/SongTable.svelte";
+    import {goto} from "$app/navigation";
+    import songs from "./+page.svelte";
 
+    let a_songs;
 
     onMount(async () => {
-        if (!$SongStore.length) {
-            const endpoint = "http://localhost:8000/songs/"
-            const response = await fetch(endpoint)
-            const data = await response.json()
-            SongStore.set(data)
-        }
+        a_songs = songs
     });
 </script>
 
@@ -26,7 +22,7 @@
     </tr>
     </thead>
     <tbody>
-    {#each $SongStore as song}
+    {#each a_songs as song}
         <tr>
             <td><a href="{song.id}">{song.title}</a></td>
             <td>{song.artist}</td>
@@ -37,5 +33,4 @@
         </tr>
     {/each}
     </tbody>
-
 </SongTable>
