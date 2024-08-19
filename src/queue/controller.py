@@ -63,6 +63,14 @@ class QueueController:
         self._processed_songs.append(ProcessedSong(song=removed.song, processed_at=datetime.now()))
         return removed
 
+    def mark_song_at_index_as_processed(self, index: int):
+        try:
+            removed: SongInQueue = self._queue.pop(index)
+        except IndexError as exc:
+            raise QueueEmptyError() from exc
+        self._processed_songs.append(ProcessedSong(song=removed.song, processed_at=datetime.now()))
+        return removed
+
     def remove_song_by_index(self, index: int):
         try:
             removed = self._queue.pop(index)

@@ -39,7 +39,7 @@ def get_queue():
     return queue_controller.queue
 
 
-@queue_router.get("/add-song", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
+@queue_router.post("/add-song", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
 async def add_song_to_queue(
         response: Response,
         requested_song_id: int,
@@ -179,12 +179,23 @@ def set_time_between_submitting_songs(seconds: int, minutes: int, hours: int):
     TIME_BETWEEN_SUBMITTING_SONGS = time_between_submitting_songs
     return {"message": f"Set time between submitting songs to {TIME_BETWEEN_SUBMITTING_SONGS.total_seconds()} seconds"}
 
+
 @queue_router.get("/get-block-submitting-songs-in-timeframe", dependencies=[Depends(is_admin)])
 def get_blocks_submitting_songs_in_timeframe() -> bool:
     return SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED
+
 
 @queue_router.put("/block-submitting-songs-in-timeframe", dependencies=[Depends(is_admin)])
 def block_submitting_songs_in_timeframe(block_submitting: bool):
     global SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED
     SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED = block_submitting
     return {"message": f"Set block submitting songs in timeframe to {SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED}"}
+
+
+@queue_router.put("/check-song-by-index", dependencies=[Depends(is_admin)])
+def check_song_in_queue_by_index(index: int):
+    try:
+        checked = queue_controller.mark_song_at_index_as_processed(index)
+    except QueueEmptyError as err:
+        raise QueueEmptyHTTPException(detail=err.msg)
+    return {"checked": checked}
