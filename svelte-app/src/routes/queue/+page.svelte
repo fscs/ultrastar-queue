@@ -1,6 +1,7 @@
 <script>
+    import {QueueStore} from "../../stores.js";
     import {onMount} from "svelte";
-    import {QueueStore} from "../../queue-store.js";
+
     import SongTable from "$lib/SongTable.svelte";
 
     let isAdmin = true;

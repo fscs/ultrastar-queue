@@ -1,5 +1,5 @@
 <script>
-
+    import {QueueStore} from "../../../stores.js";
     import {goto} from "$app/navigation";
     import {onMount} from "svelte";
 

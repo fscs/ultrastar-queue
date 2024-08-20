@@ -1,5 +1,5 @@
 <script>
-    import {SongStore} from "../../song-store.js";
+    import {SongStore} from "../../stores.js";
     import {onMount} from "svelte";
     import {goto} from "$app/navigation";
     export let data;
