@@ -14,7 +14,10 @@
     export const handleSubmit = () => {
 
         const endpoint = (`http://localhost:8000/queue/add-song?requested_song_id=${data.id}&singer=${singer}`)
-        fetch(endpoint, {method: "POST"})
+        fetch(endpoint, {
+            method: "POST",
+            credentials: "include"
+        })
             .then(response => response.json())
             .then(data => {
                 QueueStore.update(prev => [...prev, data])

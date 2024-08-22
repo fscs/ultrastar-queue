@@ -1,5 +1,5 @@
 <script>
-  import Navbar from "$lib/Navbar.svelte";
+    import Navbar from "$lib/Navbar.svelte";
 </script>
 
 
@@ -7,6 +7,8 @@
 
 <main class="container">
     <div class="bg-body-tertiary p-5">
-        <slot />
+        <slot>
+            <em>Something went wrong</em>
+        </slot>
     </div>
 </main>
