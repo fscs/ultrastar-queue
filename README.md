@@ -21,6 +21,7 @@
 - https://usdx.eu/format/#specs
 - https://www.youtube.com/watch?v=aFxcq0XTmRg
   - used for svelte-app/src/lib/Login.svelte
+- https://stackoverflow.com/a/67660773
 
 ## Used bootstrap
 - routes/+layout.svelte => bootstrap/examples/navbar-fixed

@@ -1,11 +1,12 @@
 <script>
-    import {QueueStore} from "../../../stores.js";
+    import {ErrorAlertStore, QueueStore, SuccessAlertStore} from "../../../stores.js";
     import {goto} from "$app/navigation";
     import {onMount} from "svelte";
 
-    export let singer = ""
-    let name_field;
+    export let singer = "";
     export let data;
+
+    let name_field;
 
     onMount(async () => {
         name_field.focus()
@@ -18,13 +19,25 @@
             method: "POST",
             credentials: "include"
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json()
+                } else {
+                    return Promise.reject(response)
+                }
+            })
             .then(data => {
                 QueueStore.update(prev => [...prev, data])
+                SuccessAlertStore.update(prev => [...prev, "Song successfully added to queue!"])
+                goto("/queue/")
             })
-        goto("/queue/")
-    }
+            .catch((response) => { // https://stackoverflow.com/a/67660773
+                response.json().then((json) => {
+                    ErrorAlertStore.update(prev => [...prev, json["detail"]])
+                })
+            });
 
+    }
 
 </script>
 
