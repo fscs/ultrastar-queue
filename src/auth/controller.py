@@ -3,7 +3,7 @@ from typing import Annotated
 
 import jwt
 from decouple import config
-from fastapi import Depends
+from fastapi import Depends, Cookie
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
@@ -38,8 +38,10 @@ async def get_user(session: AsyncSession, username: str) -> User | None:
     return user
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
-                           session: Annotated[AsyncSession, Depends(db_controller.get_session)]) -> User:
+async def get_current_user(#token: Annotated[str, Depends(oauth2_scheme)],
+                           session: Annotated[AsyncSession, Depends(db_controller.get_session)],
+                           access_token: str | None = Cookie(None)) -> User:
+    token = access_token
     try:
         payload = jwt.decode(token, JWT_SIGNING_SECRET_KEY, algorithms=[JWT_ALGORITHM])
         username: str = payload.get("sub")

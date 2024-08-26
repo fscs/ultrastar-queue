@@ -1,35 +1,42 @@
 <script>
-    import user from "../user";
+    import {ErrorAlertStore, SuccessAlertStore, User} from "../stores.js";
     import {goto} from "$app/navigation";
 
     let username = "";
     let password = "";
-    let currentError = null;
 
     const login = () => {
-        const endpoint = "http://localhost:8000/token"
+        const endpoint = "http://localhost:8000/login"
         let form_data = new FormData()
         form_data.append('username', username)
         form_data.append('password', password)
         fetch(endpoint, {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
+            //headers: {
+            //    "Accept": "application/json",
+            //    "Content-Type": "application/x-www-form-urlencoded"
+            //},
             body: form_data
         })
-            .then((response) => {
-                if (response.status <= 299) return response.json()
-                if (response.status > 299) currentError = response.json()["detail"];
+            .then(response => {
+                if (response.ok) {
+                    return response.json()
+                } else {
+                    return Promise.reject(response)
+                }
             })
             .then((data) => {
-                if (data) user.update(val => val = {...data})
+                User.update(val => val = {...data})
+                SuccessAlertStore.update(prev => [...prev, data["message"]])
+                goto("/")
             })
-            .catch((error) => {
-                currentError = error;
-                console.log("Error logging in: ", error)
-            })
+            .catch((response) => {
+                response.json().then((json) => {
+                    ErrorAlertStore.update(prev => [...prev, json["detail"]])
+                })
+            });
+
 
     }
 
@@ -37,12 +44,7 @@
 
 <div class="container col-xl-10 col-xxl-8 px-4 py-5">
     <div class="row align-items-center g-lg-5 py-5">
-        <div class="col-lg-7 text-center text-lg-start">
-            <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">Vertically centered hero sign-up form</h1>
-            <p class="col-lg-10 fs-4">Below is an example form built entirely with Bootstrap’s form controls. Each
-                required form group has a validation state that can be triggered by attempting to submit the form
-                without completing it.</p>
-        </div>
+
         <div class="col-md-10 mx-auto col-lg-5">
             <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary" on:submit|preventDefault={login}>
                 <div class="form-floating mb-3">
@@ -54,8 +56,6 @@
                     <label for="password">Password</label>
                 </div>
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
-                <hr class="my-4">
-                <small class="text-body-secondary">By clicking Sign up, you agree to the terms of use.</small>
             </form>
         </div>
     </div>
