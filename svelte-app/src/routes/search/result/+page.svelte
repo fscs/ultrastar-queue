@@ -1,14 +1,7 @@
 <script>
-    import {onMount} from "svelte";
     import SongTable from "$lib/SongTable.svelte";
     import {goto} from "$app/navigation";
-    import songs from "./+page.svelte";
-
-    let a_songs;
-
-    onMount(async () => {
-        a_songs = songs
-    });
+    import {SearchResultStore} from "../../../stores.js";
 </script>
 
 <SongTable>
@@ -22,7 +15,7 @@
     </tr>
     </thead>
     <tbody>
-    {#each a_songs as song}
+    {#each $SearchResultStore as song}
         <tr>
             <td><a href="{song.id}">{song.title}</a></td>
             <td>{song.artist}</td>
