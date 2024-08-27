@@ -3,6 +3,7 @@
     import {onMount} from "svelte";
 
     import SongTable from "$lib/SongTable.svelte";
+    import {goto} from "$app/navigation";
 
     let isAdmin = true;
 
@@ -49,3 +50,7 @@
     </tbody>
 
 </SongTable>
+
+<div>
+    <button class="button" on:click={() => goto("/processed-songs")}>Show recent Songs</button>
+</div>

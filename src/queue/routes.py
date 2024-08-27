@@ -39,6 +39,11 @@ def get_queue():
     return queue_controller.queue
 
 
+@queue_router.get("/processed-songs")
+def get_processed_songs():
+    return queue_controller.processed_songs
+
+
 @queue_router.post("/add-song", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
 async def add_song_to_queue(
         response: Response,
@@ -76,7 +81,7 @@ async def add_song_to_queue(
 
     queue_controller.add_song_at_end(song_in_queue)
 
-    response.set_cookie("last_added", str(datetime.now()), httponly=True)
+    response.set_cookie("last_added", str(datetime.now()), httponly=True, max_age=60*24)
     return song_in_queue
 
 
@@ -138,17 +143,18 @@ def clear_queue_controller():
 
 
 @queue_router.get("/get-time-between-same-song", dependencies=[Depends(is_admin)])
-def get_time_between_same_song() -> timedelta:
-    return queue_controller.time_between_same_song
+def get_time_between_same_song() -> int:
+    return round(queue_controller.time_between_same_song.total_seconds())
 
 
 @queue_router.put("/set-time-between-same-song", dependencies=[Depends(is_admin)])
-def set_time_between_same_song(seconds: int):
+def set_time_between_same_song(hours: int, minutes: int, seconds: int):
     try:
-        queue_controller.time_between_same_song = timedelta(seconds=seconds)
+        queue_controller.time_between_same_song = timedelta(hours=hours, minutes=minutes, seconds=seconds)
     except ValueError as err:
         raise NotAValidNumberHTTPException(detail=err.args[0])
-    return {"message": f"Set time to {timedelta(seconds=seconds)} between submitting the same song"}
+    return {"message": f"Set time to {timedelta(hours=hours, minutes=minutes, seconds=seconds)} "
+                       f"between submitting the same song"}
 
 
 @queue_router.get("/get-max-times-song-can-be-sung", dependencies=[Depends(is_admin)])
@@ -166,8 +172,8 @@ def set_max_times_song_can_be_sung(max_times: int):
 
 
 @queue_router.get("/get-time-between-submitting-songs", dependencies=[Depends(is_admin)])
-def get_time_between_submitting_songs() -> timedelta:
-    return TIME_BETWEEN_SUBMITTING_SONGS
+def get_time_between_submitting_songs() -> int:
+    return round(TIME_BETWEEN_SUBMITTING_SONGS.total_seconds())
 
 
 @queue_router.put("/set-time-between-submitting-songs", dependencies=[Depends(is_admin)])
@@ -177,7 +183,7 @@ def set_time_between_submitting_songs(seconds: int, minutes: int, hours: int):
         raise NotAValidNumberHTTPException(detail="Time cannot be negative")
     global TIME_BETWEEN_SUBMITTING_SONGS
     TIME_BETWEEN_SUBMITTING_SONGS = time_between_submitting_songs
-    return {"message": f"Set time between submitting songs to {TIME_BETWEEN_SUBMITTING_SONGS.total_seconds()} seconds"}
+    return {"message": f"Set time between submitting songs to {TIME_BETWEEN_SUBMITTING_SONGS}"}
 
 
 @queue_router.get("/get-block-submitting-songs-in-timeframe", dependencies=[Depends(is_admin)])
@@ -185,8 +191,8 @@ def get_blocks_submitting_songs_in_timeframe() -> bool:
     return SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED
 
 
-@queue_router.put("/block-submitting-songs-in-timeframe", dependencies=[Depends(is_admin)])
-def block_submitting_songs_in_timeframe(block_submitting: bool):
+@queue_router.put("/set-block-submitting-songs-in-timeframe", dependencies=[Depends(is_admin)])
+def set_block_submitting_songs_in_timeframe(block_submitting: bool):
     global SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED
     SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED = block_submitting
     return {"message": f"Set block submitting songs in timeframe to {SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED}"}
@@ -199,3 +205,17 @@ def check_song_in_queue_by_index(index: int):
     except QueueEmptyError as err:
         raise QueueEmptyHTTPException(detail=err.msg)
     return {"checked": checked}
+
+
+@queue_router.get("/get-is-queue-open", dependencies=[Depends(is_admin)])
+def get_is_queue_open() -> bool:
+    return queue_controller.is_queue_open()
+
+
+@queue_router.put("/set-is-queue-open", dependencies=[Depends(is_admin)])
+def set_is_queue_open(open_queue: bool):
+    if open_queue:
+        queue_controller.open_queue()
+    else:
+        queue_controller.close_queue()
+    return {"message": f"Set is queue open to {queue_controller.is_queue_open()}"}
