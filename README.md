@@ -5,6 +5,9 @@
 ## Getting started
 
 - install the requirements from requirements.txt
+- python main.py
+- /svelte-app npm install
+- /svelte-app npm run dev -- --open
 
 ## Used Sources
 
