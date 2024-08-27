@@ -10,6 +10,12 @@
         ProcessedSongsStore.set(processedSongs)
     });
 
+    const intToDateStr = (int) => {
+        let date = new Date(0,0,0,0,0,int)
+        let min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
+        let sec = date.getSeconds() < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`
+        return `${date.getHours()}:${min}:${sec}`
+    }
 </script>
 
 <SongTable>
@@ -28,7 +34,7 @@
         <tr>
             <th><a href="{processedSong.song.id}">{processedSong.song.title}</a></th>
             <th>{processedSong.song.artist}</th>
-            <th>{processedSong.song.audio_duration}</th>
+            <th>{intToDateStr(processedSong.song.audio_duration)}</th>
             <th>{processedSong.processed_at}</th>
         </tr>
     {/each}

@@ -1,11 +1,11 @@
 <script>
-    import {QueueStore} from "../../stores.js";
+    import {ErrorAlertStore, QueueStore, SuccessAlertStore, User} from "../../stores.js";
     import {onMount} from "svelte";
 
     import SongTable from "$lib/SongTable.svelte";
     import {goto} from "$app/navigation";
 
-    let isAdmin = true;
+    $: isAdmin = $User === null ? false : $User.is_admin
 
     onMount(async () => {
         const endpoint = "http://localhost:8000/queue/"
@@ -14,10 +14,33 @@
         QueueStore.set(queue)
     });
 
-    function handleCheck(index) {
+    const handleCheck = (index) => {
         console.log(index)
         const endpoint = `http://localhost:8000/queue/check-song-by-index?index=${index}`
         fetch(endpoint, {method: "PUT", credentials: "include"})
+            .then(response => {
+                if (response.ok) {
+                    return response.json()
+                } else {
+                    return Promise.reject(response)
+                }
+            })
+            .then((json) => {
+                        console.log(json)
+                        SuccessAlertStore.update(prev => [...prev, json["message"]])
+                    })
+            .catch((response) => {
+                response.json().then((json) => {
+                    ErrorAlertStore.update(prev => [...prev, json["detail"]])
+                })
+            });
+    }
+
+    const intToDateStr = (int) => {
+        let date = new Date(0,0,0,0,0,int)
+        let min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
+        let sec = date.getSeconds() < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`
+        return `${date.getHours()}:${min}:${sec}`
     }
 
 </script>
@@ -38,7 +61,7 @@
         <tr>
             <th><a href="{song_in_queue.song.id}">{song_in_queue.song.title}</a></th>
             <th>{song_in_queue.song.artist}</th>
-            <th>{song_in_queue.song.audio_duration}</th>
+            <th>{intToDateStr(song_in_queue.song.audio_duration)}</th>
             <th>{song_in_queue.singer}</th>
             {#if isAdmin}
                 <th>

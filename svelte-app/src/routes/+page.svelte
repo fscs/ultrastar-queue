@@ -13,6 +13,13 @@
             SongStore.set(data)
         }
     });
+
+    const intToDateStr = (int) => {
+        let date = new Date(0,0,0,0,0,int)
+        let min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
+        let sec = date.getSeconds() < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`
+        return `${date.getHours()}:${min}:${sec}`
+    }
 </script>
 
 <SongTable>
@@ -30,7 +37,7 @@
         <tr>
             <td><a href="{song.id}">{song.title}</a></td>
             <td>{song.artist}</td>
-            <td>{song.audio_duration}</td>
+            <td>{intToDateStr(song.audio_duration)}</td>
             <td>
                 <button type="button" class="btn btn-primary" on:click={() => goto(song.id+"/add")}>Add</button>
             </td>

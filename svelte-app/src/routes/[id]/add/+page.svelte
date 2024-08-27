@@ -1,5 +1,5 @@
 <script>
-    import {ErrorAlertStore, QueueStore, SuccessAlertStore} from "../../../stores.js";
+    import {ErrorAlertStore, QueueStore, SuccessAlertStore, User} from "../../../stores.js";
     import {goto} from "$app/navigation";
     import {onMount} from "svelte";
 
@@ -8,11 +8,13 @@
 
     let name_field;
 
+    $: isAdmin = $User === null ? false : $User.is_admin
+
     onMount(async () => {
         name_field.focus()
     })
 
-    export const handleSubmit = () => {
+    const handleSubmit = () => {
 
         const endpoint = (`http://localhost:8000/queue/add-song?requested_song_id=${data.id}&singer=${singer}`)
         fetch(endpoint, {
@@ -39,12 +41,49 @@
 
     }
 
+    const handleSubmitAsAdmin = () => {
+
+        const endpoint = (`http://localhost:8000/queue/add-song-as-admin?requested_song_id=${data.id}&singer=${singer}`)
+        fetch(endpoint, {
+            method: "POST",
+            credentials: "include"
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json()
+                } else {
+                    return Promise.reject(response)
+                }
+            })
+            .then(data => {
+                QueueStore.update(prev => [...prev, data])
+                SuccessAlertStore.update(prev => [...prev, "Song successfully added to queue!"])
+                goto("/queue/")
+            })
+            .catch((response) => {
+                response.json().then((json) => {
+                    ErrorAlertStore.update(prev => [...prev, json["detail"]])
+                })
+            });
+
+    }
+
 </script>
 
-<form on:submit|once|preventDefault={handleSubmit}>
-    <div class="col-md-4">
-        <input bind:this={name_field} bind:value={singer} class="form-control" placeholder="Enter name" required
-               type="text"/>
-    </div>
-    <button class="submit">Submit</button>
-</form>
+{#if isAdmin}
+    <form on:submit|preventDefault={handleSubmitAsAdmin}>
+        <div class="col-md-4">
+            <input bind:this={name_field} bind:value={singer} class="form-control" placeholder="Enter name" required
+                   type="text"/>
+        </div>
+        <button class="submit">Submit</button>
+    </form>
+{:else}
+    <form on:submit|preventDefault={handleSubmit}>
+        <div class="col-md-4">
+            <input bind:this={name_field} bind:value={singer} class="form-control" placeholder="Enter name" required
+                   type="text"/>
+        </div>
+        <button class="submit">Submit</button>
+    </form>
+{/if}

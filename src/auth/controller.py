@@ -17,7 +17,7 @@ from .schemas import TokenData
 
 JWT_SIGNING_SECRET_KEY = config("JWT_SIGNING_SECRET_KEY")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

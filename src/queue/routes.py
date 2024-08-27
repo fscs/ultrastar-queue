@@ -90,15 +90,13 @@ async def add_song_to_queue(
                    response_model=SongInQueue,
                    dependencies=[Depends(is_admin)])
 async def add_song_to_queue_as_admin(
-        requested_song: UltrastarSong,
+        requested_song_id: int,
         singer: str,
         session: AsyncSession = Depends(db_controller.get_session)
 ):
-    song_in_db = await SessionController.get_song_by_id(session, requested_song.id)
+    song_in_db = await SessionController.get_song_by_id(session, requested_song_id)
     if not song_in_db:
         raise SongNotInDatabaseHTTPException()
-    elif (requested_song.title != song_in_db.title) or (requested_song.artist != song_in_db.artist):
-        raise MismatchingSongDataHTTPException()
 
     song_in_queue = SongInQueue(song=song_in_db, singer=singer)
     queue_controller.add_song_at_end(song_in_queue)
@@ -204,7 +202,7 @@ def check_song_in_queue_by_index(index: int):
         checked = queue_controller.mark_song_at_index_as_processed(index)
     except QueueEmptyError as err:
         raise QueueEmptyHTTPException(detail=err.msg)
-    return {"checked": checked}
+    return {"message": f"checked: {checked.song.title} by {checked.song.artist}"}
 
 
 @queue_router.get("/get-is-queue-open", dependencies=[Depends(is_admin)])

@@ -22,8 +22,6 @@
     export let minutesBetweenSubmittingSongs = 0;
     export let secondsBetweenSubmittingSongs = 0;
 
-    export let blockSubmittingSongsInTimeframe;
-
     onMount(async () => {
         queueIsOpen = await getSettingValue("/get-is-queue-open");
         timeBetweenSameSong = await getSettingValue("/get-time-between-same-song");
@@ -37,7 +35,6 @@
         hoursBetweenSubmittingSongs = timeBetweenSubmittingSongs.getHours()
         minutesBetweenSubmittingSongs = timeBetweenSubmittingSongs.getMinutes()
         secondsBetweenSubmittingSongs = timeBetweenSubmittingSongs.getSeconds()
-        blockSubmittingSongsInTimeframe = await getSettingValue("/get-block-submitting-songs-in-timeframe");
     });
 
     const setQueueIsOpen = () => {
@@ -63,10 +60,6 @@
             `&hours=${hoursBetweenSubmittingSongs}`)
     }
 
-    const setBlockSubmittingSongsInTimeframe = () => {
-        setSettingValue(`/set-block-submitting-songs-in-timeframe?block_submitting=${blockSubmittingSongsInTimeframe}`)
-    }
-
     const clearQueue = () => {
         deleteSettingValue(`/clear-queue`)
     }
@@ -74,12 +67,6 @@
     const clearProcessedSongs = () => {
         deleteSettingValue(`/clear-processed-songs`)
     }
-
-    //$: console.log(queueIsOpen)
-    //$: console.log(timeBetweenSameSong)
-    //$: console.log(maxTimesSongCanBeSung)
-    //$: console.log(timeBetweenSubmittingSongs)
-    //$: console.log(blockSubmittingSongsInTimeframe)
 
 </script>
 
@@ -106,7 +93,6 @@
         <button class="btn btn-primary" type="submit">Save</button>
     </form>
 
-
     <form on:submit={setMaxTimesSongCanBeSung}>
         <div class="mb-3">
             <input bind:value={maxTimesSongCanBeSung} min="1" type="number"/>
@@ -124,16 +110,6 @@
             <label class="form-label" for="customRange3">Minutes</label>
             <input bind:value={secondsBetweenSubmittingSongs} min="0" type="number"/>
             <label class="form-label" for="customRange3">Seconds</label>
-        </div>
-        <button class="btn btn-primary" type="submit">Save</button>
-    </form>
-
-    <form on:submit={setBlockSubmittingSongsInTimeframe}>
-        <div class="mb-3 form-check form-switch">
-            <input bind:checked={blockSubmittingSongsInTimeframe} class="form-check-input" id="flexSwitchCheckChecked"
-                   role="switch"
-                   type="checkbox">
-            <label class="form-check-label" for="flexSwitchCheckChecked">Block submitting songs in timeframe</label>
         </div>
         <button class="btn btn-primary" type="submit">Save</button>
     </form>
