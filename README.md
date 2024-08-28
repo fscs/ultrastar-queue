@@ -20,6 +20,17 @@
   - password: password
   - (Generic user is just for testing in case there'll be user accounts someday. Right now the user is not supposed to do anything a not-loged-in person can't do.)
 
+
+- Login for admin
+  - username: bestAdmin
+  - password: password
+
+
+- Login for generic user
+  - username: bestUser
+  - password: password
+  - (Generic user is just for testing in case there'll be user accounts someday. Right now the user is not supposed to do anything a not-loged-in person can't do.)
+
 ## Used Sources
 
 - https://www.youtube.com/watch?v=vkEhatGH1kI
