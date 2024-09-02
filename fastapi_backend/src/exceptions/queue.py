@@ -73,23 +73,9 @@ class SongNotInDatabaseHTTPException(HTTPException):
         self.headers: Dict[str, str] = headers
 
 
-class MismatchingSongDataHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = "Songdata not matching"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
-
-
 class CantSubmitSongHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = f"Please wait a while before submitting a new song"
+    _default_detail: str = "Please wait a while before submitting a new song"
 
     def __init__(self,
                  status_code: int = _default_status_code,
@@ -103,7 +89,7 @@ class CantSubmitSongHTTPException(HTTPException):
 
 class SongAlreadyInQueueHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = f"Requested Song is already in queue"
+    _default_detail: str = "Requested Song is already in queue"
 
     def __init__(self,
                  status_code: int = _default_status_code,
@@ -117,7 +103,7 @@ class SongAlreadyInQueueHTTPException(HTTPException):
 
 class SongAlreadySungHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = f"Requested Song has already been sung today"
+    _default_detail: str = "Requested Song has already been sung today"
 
     def __init__(self,
                  status_code: int = _default_status_code,
@@ -131,7 +117,7 @@ class SongAlreadySungHTTPException(HTTPException):
 
 class SongRecentlySungHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = f"Requested Song has been sung recently"
+    _default_detail: str = "Requested Song has been sung recently"
 
     def __init__(self,
                  status_code: int = _default_status_code,
@@ -145,7 +131,7 @@ class SongRecentlySungHTTPException(HTTPException):
 
 class NotAValidNumberHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = f"Not a valid number"
+    _default_detail: str = "Not a valid number"
 
     def __init__(self,
                  status_code: int = _default_status_code,

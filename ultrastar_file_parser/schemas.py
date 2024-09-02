@@ -1,6 +1,7 @@
 from enum import Enum
 
 
+# from https://usdx.eu/format/#specs accessesed at 27.07.2024
 # the regex "^#[a-zA-Z0-9]+:" for ATTRIBUTE would be better fitting for the format up to now but meh
 class UltrastarFileRegexMatcher(Enum):
     ATTRIBUTE: str = r"^#\w+:"  # e.g. "#TITLE:"

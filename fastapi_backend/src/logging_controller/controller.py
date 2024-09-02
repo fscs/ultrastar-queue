@@ -5,7 +5,7 @@ import pathlib
 
 
 def setup_logging() -> None:
-    config_file = pathlib.Path("src/logging_controller/config.json")
+    config_file = pathlib.Path("fastapi_backend/src/logging_controller/config.json")
     with open(config_file, "r") as f:
         config = json.load(f)
 

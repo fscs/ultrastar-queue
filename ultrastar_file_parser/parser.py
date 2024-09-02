@@ -10,7 +10,7 @@ class UltrastarFileParser:
 
     @staticmethod
     def _get_lyrics_from_sing_line(line: str) -> str:
-        empty, lyrics = re.split(pattern=UltrastarFileRegexMatcher.SING_LINE.value, string=line, maxsplit=1)
+        _, lyrics = re.split(pattern=UltrastarFileRegexMatcher.SING_LINE.value, string=line, maxsplit=1)
         lyrics = lyrics.replace("~", "")
         return lyrics.replace("\n", "")
 
@@ -38,7 +38,7 @@ class UltrastarFileParser:
     @staticmethod
     def get_song_file_paths(input_dir: str) -> List[str]:
         if not os.path.exists(input_dir):
-            raise FileNotFoundError("Could not find path: {path}".format(path=input_dir))
+            raise FileNotFoundError(f"Could not find path: {input_dir}")
         song_paths = [os.path.join(dir_path, file)
                       for dir_path, dir_names, files in os.walk(input_dir)
                       for file in files

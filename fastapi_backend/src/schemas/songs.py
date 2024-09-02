@@ -19,7 +19,7 @@ class UltrastarSongBase(SQLModel):
         for attr in self.model_fields:
             if hasattr(self, attr):
                 repr_str += f"{attr}: {getattr(self, attr)}\n"
-        return "UltrastarSongBase(\n"+repr_str+")"
+        return "UltrastarSongBase(\n" + repr_str + ")"
 
 
 class UltrastarSongConverter(BaseModel):

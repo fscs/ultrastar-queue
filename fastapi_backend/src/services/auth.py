@@ -9,36 +9,34 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.app import db_controller
-from src.database import SessionController
-from src.database.models import User
-from .exceptions import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
-from .schemas import TokenData
+from ..app import db_controller
+from ..exceptions.auth import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
+from ..models.auth import User  # TODO?
+from ..schemas.auth import TokenData
+from ..services.session import SessionService
+
 
 JWT_SIGNING_SECRET_KEY = config("JWT_SIGNING_SECRET_KEY")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
+OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    return PWD_CONTEXT.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    return PWD_CONTEXT.hash(password)
 
 
 async def get_user(session: AsyncSession, username: str) -> User | None:
-    user = await SessionController.get_user_by_username(session, username)
+    user = await SessionService.get_user_by_username(session, username)
     return user
 
 
-async def get_current_user(#token: Annotated[str, Depends(oauth2_scheme)],
+async def get_current_user(# token: Annotated[str, Depends(oauth2_scheme)],
                            session: Annotated[AsyncSession, Depends(db_controller.get_session)],
                            access_token: str | None = Cookie(None)) -> User:
     token = access_token

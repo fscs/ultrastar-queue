@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 
-from src.database.models import UltrastarSong
-from .exceptions import QueueEmptyError, QueueIndexError
-from .schemas import SongInQueue, ProcessedSong
+from ..exceptions.queue import QueueEmptyError, QueueIndexError
+from ..models.songs import UltrastarSong  # TODO?
+from ..schemas.queue import SongInQueue, ProcessedSong
 
 
-class QueueController:
+class QueueService:
 
     def __init__(self):
         self._time_between_same_song: timedelta = timedelta(minutes=60)
@@ -68,7 +68,8 @@ class QueueController:
             removed: SongInQueue = self._queue.pop(index)
         except IndexError as exc:
             raise QueueEmptyError() from exc
-        self._processed_songs.append(ProcessedSong(song=removed.song, processed_at=datetime.now().replace(microsecond=0)))
+        self._processed_songs.append(ProcessedSong(song=removed.song,
+                                                   processed_at=datetime.now().replace(microsecond=0)))
         return removed
 
     def remove_song_by_index(self, index: int):

@@ -1,36 +1,13 @@
 from typing import List
 
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import SQLModel
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from .models import UltrastarSong, User
+from ..models.auth import User
+from ..models.songs import UltrastarSong
 
 
-class DBController:
-
-    def __init__(self, database_url: str):
-        self.DATABASE_URL = database_url
-        self.async_engine = create_async_engine(self.DATABASE_URL, echo=True)
-
-    async def init_db(self) -> None:
-        async with self.async_engine.begin() as connection:
-            await connection.run_sync(SQLModel.metadata.create_all)
-
-    async def clean_db(self) -> None:
-        async with self.async_engine.begin() as connection:
-            await connection.run_sync(SQLModel.metadata.drop_all)
-
-    async def get_session(self) -> AsyncSession:
-        async_session = sessionmaker(bind=self.async_engine, class_=AsyncSession, expire_on_commit=False)
-
-        async with async_session() as session:
-            yield session
-
-
-class SessionController:
+class SessionService:
 
     @staticmethod
     async def get_songs(session: AsyncSession) -> List[UltrastarSong]:
@@ -55,10 +32,11 @@ class SessionController:
             session: AsyncSession,
             title: str | None = None,
             artist: str | None = None,
-            ) -> list[UltrastarSong]:
+    ) -> list[UltrastarSong]:
 
         if title and artist:
-            statement = select(UltrastarSong).where(UltrastarSong.title == title, UltrastarSong.artist == artist)
+            statement = (select(UltrastarSong)
+                         .where(UltrastarSong.title == title, UltrastarSong.artist == artist))
         elif title:
             statement = select(UltrastarSong).where(UltrastarSong.title == title)
         elif artist:
