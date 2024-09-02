@@ -4,7 +4,7 @@ from fastapi import Depends, APIRouter, Header, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from ..app import db_controller
+from ..app import db_service
 from ..exceptions.auth import AuthenticationHTTPException
 from ..schemas.auth import Token
 from ..services import auth
@@ -20,7 +20,7 @@ auth_router = APIRouter(
 @auth_router.post("/token")
 async def token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                 headers: str | None = Header(None),
-                session: AsyncSession = Depends(db_controller.get_session)) -> Token:
+                session: AsyncSession = Depends(db_service.get_session)) -> Token:
     user = await auth.authenticate_user(session, form_data.username, form_data.password)
     if not user:
         raise AuthenticationHTTPException()
@@ -32,7 +32,7 @@ async def token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                 response: Response,
                 headers: str | None = Header(None),
-                session: AsyncSession = Depends(db_controller.get_session)):
+                session: AsyncSession = Depends(db_service.get_session)):
     user = await auth.authenticate_user(session, form_data.username, form_data.password)
     if not user:
         raise AuthenticationHTTPException()

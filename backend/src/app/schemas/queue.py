@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from ..models.songs import UltrastarSong
+from backend.src.database.models.songs import UltrastarSong
 
 
 class SongInQueue(BaseModel):

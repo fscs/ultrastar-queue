@@ -7,7 +7,7 @@ from src.songs.exceptions import (
     EmptySonglistHTTPException,
     NoMatchingSongHTTPException,
     SongIdNotMatchingHTTPException)
-from .test_main import overrides_is_admin_as_false
+from backend.tests.test_main import overrides_is_admin_as_false
 
 
 def test_get_songs_with_no_song(client, mock_db_query_get_songs):
@@ -23,7 +23,7 @@ def test_get_songs_with_no_song(client, mock_db_query_get_songs):
 def test_get_songs_with_single_song(client, mock_db_query_get_songs, song1, song1_api_wrap):
     mock_db_query_get_songs.return_value = [song1]
 
-    response = client.get(f"/songs/")
+    response = client.get("/songs/")
 
     mock_db_query_get_songs.assert_called_once()
     assert response.status_code == status.HTTP_200_OK
@@ -33,7 +33,7 @@ def test_get_songs_with_single_song(client, mock_db_query_get_songs, song1, song
 def test_get_songs_with_two_songs(client, mock_db_query_get_songs, song1, song1_api_wrap, song2, song2_api_wrap):
     mock_db_query_get_songs.return_value = [song1, song2]
 
-    response = client.get(f"/songs/")
+    response = client.get("/songs/")
 
     mock_db_query_get_songs.assert_called_once()
     assert response.status_code == status.HTTP_200_OK

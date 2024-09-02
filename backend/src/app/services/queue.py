@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
+from backend.src.database.models.songs import UltrastarSong
 from ..exceptions.queue import QueueEmptyError, QueueIndexError
-from ..models.songs import UltrastarSong  # TODO?
 from ..schemas.queue import SongInQueue, ProcessedSong
 
 
@@ -13,6 +13,7 @@ class QueueService:
         self._queue: list[SongInQueue] = []
         self._processed_songs: list[ProcessedSong] = []
         self._queue_is_open: bool = True
+        self._time_between_song_submissions: timedelta = timedelta(minutes=60)
 
     @property
     def queue(self) -> list[SongInQueue]:
@@ -27,10 +28,10 @@ class QueueService:
         return self._time_between_same_song
 
     @time_between_same_song.setter
-    def time_between_same_song(self, time_between_same_song: timedelta) -> None:
-        if time_between_same_song.total_seconds() < 0:
+    def time_between_same_song(self, interval: timedelta) -> None:
+        if interval.total_seconds() < 0:
             raise ValueError("Time between songs cannot be negative")
-        self._time_between_same_song = time_between_same_song
+        self._time_between_same_song = interval
 
     @property
     def max_times_song_can_be_sung(self) -> int:
@@ -44,8 +45,23 @@ class QueueService:
             raise ValueError("Number cannot be negative")
         self._max_times_song_can_be_sung = value
 
-    def is_queue_open(self) -> bool:
+    @property
+    def time_between_song_submissions(self) -> timedelta:
+        return self._time_between_song_submissions
+
+    @time_between_song_submissions.setter
+    def time_between_song_submissions(self, interval: timedelta) -> None:
+        if interval.total_seconds() < 0:
+            raise ValueError("Time between song submissions cannot be negative")
+        self._time_between_song_submissions = interval
+
+    @property
+    def queue_is_open(self) -> bool:
         return self._queue_is_open
+
+    @queue_is_open.setter
+    def queue_is_open(self, value: bool) -> None:
+        self._queue_is_open = value
 
     def add_song_at_end(self, song: SongInQueue):
         self._queue.append(song)
@@ -93,16 +109,10 @@ class QueueService:
     def clear_processed_songs(self) -> None:
         self._processed_songs.clear()
 
-    def close_queue(self) -> None:
-        self._queue_is_open = False
-
-    def open_queue(self) -> None:
-        self._queue_is_open = True
-
     def clear_queue_controller(self) -> None:
         self.clear_queue()
         self.clear_processed_songs()
-        self.open_queue()
+        self.queue_is_open = True
 
     def is_song_in_queue(self, song: UltrastarSong) -> bool:
         return song in [song_in_queue.song for song_in_queue in self._queue]

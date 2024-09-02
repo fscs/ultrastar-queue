@@ -6,14 +6,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from backend.src.database.models.auth import User
+from backend.src.database.models.songs import UltrastarSong
+from backend.src.database.services.database import DBService
+from backend.src.database.services.session import SessionService
+from backend.src.logging_controller.controller import setup_logging, get_db_logger
 from ultrastar_file_parser.parser import UltrastarFileParser
-from .logging_controller.controller import setup_logging, get_db_logger
-from .models.songs import UltrastarSong
-from .models.auth import User
 from .schemas.songs import UltrastarSongBase, UltrastarSongConverter
 from .services.queue import QueueService
-from .services.database import DBService
-from .services.session import SessionService
 
 
 async def populate_database():
@@ -33,7 +33,7 @@ async def populate_database():
         song_base: UltrastarSongBase = UltrastarSongBase(**song_converter.model_dump())
 
         # https://stackoverflow.com/questions/75150942/how-to-get-a-session-from-async-session-generator-fastapi-sqlalchemy
-        generator = db_controller.get_session()
+        generator = db_service.get_session()
         session: AsyncSession = (await anext(generator))
         song = await SessionService.add_song_if_not_in_db(session, UltrastarSong(**song_base.dict()))
         try:
@@ -48,7 +48,7 @@ async def populate_database():
 
 async def add_users_to_db():
     pw = "$2b$12$VBJFBBwpnnvb9dy.NHdPnOcliuN1pkOPBUMHkfNX8cFJWjl8GlM5O"
-    generator = db_controller.get_session()
+    generator = db_service.get_session()
     session: AsyncSession = (await anext(generator))
     user1 = User(username="bestUser", is_admin=False, hashed_password=pw)
     user2 = User(username="bestAdmin", is_admin=True, hashed_password=pw)
@@ -62,7 +62,7 @@ async def add_users_to_db():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await db_controller.init_db()
+    await db_service.init_db()
     try:
         await populate_database()
         await add_users_to_db()
@@ -72,16 +72,16 @@ async def lifespan(app: FastAPI):
         else:
             raise e
     yield
-    await db_controller.clean_db()
+    await db_service.clean_db()
 
 
 def create_app():
     app = FastAPI(lifespan=lifespan)
 
-    from .routes.auth import auth_router
-    from .routes.queue import queue_router
-    from .routes.songs import song_router
-    from .routes.admin import admin_router
+    from backend.src.app.routes.auth import auth_router
+    from backend.src.app.routes.queue import queue_router
+    from backend.src.app.routes.songs import song_router
+    from backend.src.app.routes.admin import admin_router
 
     app.include_router(queue_router)
     app.include_router(song_router)
@@ -105,6 +105,6 @@ def create_app():
 
 setup_logging()
 db_logger = get_db_logger()
-db_controller = DBService(config("DATABASE_URL"))
+db_service = DBService(config("DATABASE_URL"))
 queue_service = QueueService()
 app = create_app()

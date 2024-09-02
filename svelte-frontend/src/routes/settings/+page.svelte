@@ -5,14 +5,14 @@
     import {
         clearProcessedSongsURL,
         clearQueueURL,
-        getIsQueueOpenURL,
+        getQueueIsOpenURL,
         getMaxTimesSongCanBeSungURL,
         getTimeBetweenSameSongURL,
-        getTimeBetweenSubmittingSongsURL,
-        setIsQueueOpenURL,
+        getTimeBetweenSongSubmissionsURL,
+        setQueueIsOpenURL,
         setMaxTimesSongCanBeSungURL,
         setTimeBetweenSameSongURL,
-        setTimeBetweenSubmittingSongsURL
+        setTimeBetweenSongSubmissionsURL
     } from "$lib/backend_routes.js";
 
     let popupClearQueue = false;
@@ -28,28 +28,28 @@
 
     export let maxTimesSongCanBeSung;
 
-    export let timeBetweenSubmittingSongs;
-    export let hoursBetweenSubmittingSongs = 0;
-    export let minutesBetweenSubmittingSongs = 0;
-    export let secondsBetweenSubmittingSongs = 0;
+    export let timeBetweenSongSubmissions;
+    export let hoursBetweenSongSubmissions = 0;
+    export let minutesBetweenSongSubmissions = 0;
+    export let secondsBetweenSongSubmissions = 0;
 
     onMount(async () => {
-        queueIsOpen = await getSettingValue(getIsQueueOpenURL);
+        queueIsOpen = await getSettingValue(getQueueIsOpenURL);
         timeBetweenSameSong = await getSettingValue(getTimeBetweenSameSongURL);
         timeBetweenSameSong = new Date(0, 0, 0, 0, 0, timeBetweenSameSong)
         hoursBetweenSameSong = timeBetweenSameSong.getHours()
         minutesBetweenSameSong = timeBetweenSameSong.getMinutes()
         secondsBetweenSameSong = timeBetweenSameSong.getSeconds()
         maxTimesSongCanBeSung = await getSettingValue(getMaxTimesSongCanBeSungURL)
-        timeBetweenSubmittingSongs = await getSettingValue(getTimeBetweenSubmittingSongsURL);
-        timeBetweenSubmittingSongs = new Date(0, 0, 0, 0, 0, timeBetweenSubmittingSongs)
-        hoursBetweenSubmittingSongs = timeBetweenSubmittingSongs.getHours()
-        minutesBetweenSubmittingSongs = timeBetweenSubmittingSongs.getMinutes()
-        secondsBetweenSubmittingSongs = timeBetweenSubmittingSongs.getSeconds()
+        timeBetweenSongSubmissions = await getSettingValue(getTimeBetweenSongSubmissionsURL);
+        timeBetweenSongSubmissions = new Date(0, 0, 0, 0, 0, timeBetweenSongSubmissions)
+        hoursBetweenSongSubmissions = timeBetweenSongSubmissions.getHours()
+        minutesBetweenSongSubmissions = timeBetweenSongSubmissions.getMinutes()
+        secondsBetweenSongSubmissions = timeBetweenSongSubmissions.getSeconds()
     });
 
-    const setIsQueueOpen = () => {
-        const endpoint = setIsQueueOpenURL
+    const setQueueIsOpen = () => {
+        const endpoint = setQueueIsOpenURL
         endpoint.searchParams.set("open_queue", queueIsOpen)
         setSettingValue(endpoint);
     }
@@ -69,10 +69,10 @@
     }
 
     const setTimeBetweenSubmittingSongs = () => {
-        const endpoint = setTimeBetweenSubmittingSongsURL
-        endpoint.searchParams.set("seconds", secondsBetweenSubmittingSongs)
-        endpoint.searchParams.set("minutes", minutesBetweenSubmittingSongs)
-        endpoint.searchParams.set("hours", hoursBetweenSubmittingSongs)
+        const endpoint = setTimeBetweenSongSubmissionsURL
+        endpoint.searchParams.set("seconds", secondsBetweenSongSubmissions)
+        endpoint.searchParams.set("minutes", minutesBetweenSongSubmissions)
+        endpoint.searchParams.set("hours", hoursBetweenSongSubmissions)
         setSettingValue(endpoint)
     }
 
@@ -87,7 +87,7 @@
 </script>
 
 {#if isAdmin}
-    <form on:submit={setIsQueueOpen}>
+    <form on:submit={setQueueIsOpen}>
         <div class="mb-3 form-check form-switch">
             <input bind:checked={queueIsOpen} class="form-check-input" id="flexSwitchCheckChecked" role="switch"
                    type="checkbox">
@@ -98,7 +98,7 @@
 
     <form on:submit={setTimeBetweenSameSong}>
         <div class="mb-3">
-            <p>Time between submitting the same song</p>
+            <p>Time that has to pass before the same song can be sung again</p>
             <input bind:value={hoursBetweenSameSong} min="0" type="number"/>
             <label class="form-label" for="customRange3">Hours</label>
             <input bind:value={minutesBetweenSameSong} min="0" type="number"/>
@@ -119,12 +119,12 @@
 
     <form on:submit={setTimeBetweenSubmittingSongs}>
         <div class="mb-3">
-            <p>Time between submitting songs</p>
-            <input bind:value={hoursBetweenSubmittingSongs} min="0" type="number"/>
+            <p>Time that has to pass before the same person can submit a song</p>
+            <input bind:value={hoursBetweenSongSubmissions} min="0" type="number"/>
             <label class="form-label" for="customRange3">Hours</label>
-            <input bind:value={minutesBetweenSubmittingSongs} min="0" type="number"/>
+            <input bind:value={minutesBetweenSongSubmissions} min="0" type="number"/>
             <label class="form-label" for="customRange3">Minutes</label>
-            <input bind:value={secondsBetweenSubmittingSongs} min="0" type="number"/>
+            <input bind:value={secondsBetweenSongSubmissions} min="0" type="number"/>
             <label class="form-label" for="customRange3">Seconds</label>
         </div>
         <button class="btn btn-primary" type="submit">Save</button>

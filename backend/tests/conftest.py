@@ -5,18 +5,17 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from src.app import app
-from src.app import db_controller
-from src.database.models import UltrastarSong
-from src.queue import routes as queue_routes
-from src.queue.routes import datetime, TIME_BETWEEN_SUBMITTING_SONGS
-from src.queue.schemas import SongInQueue, ProcessedSong
-from src.songs.schemas import UltrastarSongBase
+from ..src.app import app
+from ..src.app import db_service
+from backend.src.database.models import UltrastarSong
+from backend.src.app.routes import datetime
+from backend.src.app.schemas.queue import SongInQueue, ProcessedSong
+from backend.src.app.schemas import UltrastarSongBase
 
 
 @pytest.fixture(scope="session")
 def client():
-    app.dependency_overrides[db_controller.get_session] = lambda: None
+    app.dependency_overrides[db_service.get_session] = lambda: None
     yield TestClient(app)
     app.dependency_overrides = {}
 

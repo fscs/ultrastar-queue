@@ -1,6 +1,6 @@
 from sqlmodel import Field
 
-from ..schemas.songs import UltrastarSongBase
+from backend.src.app.schemas.songs import UltrastarSongBase
 
 
 class UltrastarSong(UltrastarSongBase, table=True):

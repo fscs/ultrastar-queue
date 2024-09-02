@@ -9,12 +9,11 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from ..app import db_controller
+from backend.src.database.models.auth import User
+from backend.src.database.services.session import SessionService
+from ..app import db_service
 from ..exceptions.auth import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
-from ..models.auth import User  # TODO?
 from ..schemas.auth import TokenData
-from ..services.session import SessionService
-
 
 JWT_SIGNING_SECRET_KEY = config("JWT_SIGNING_SECRET_KEY")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
@@ -36,9 +35,9 @@ async def get_user(session: AsyncSession, username: str) -> User | None:
     return user
 
 
-async def get_current_user(# token: Annotated[str, Depends(oauth2_scheme)],
-                           session: Annotated[AsyncSession, Depends(db_controller.get_session)],
-                           access_token: str | None = Cookie(None)) -> User:
+async def get_current_user(  # token: Annotated[str, Depends(oauth2_scheme)],
+        session: Annotated[AsyncSession, Depends(db_service.get_session)],
+        access_token: str | None = Cookie(None)) -> User:
     token = access_token
     try:
         payload = jwt.decode(token, JWT_SIGNING_SECRET_KEY, algorithms=[JWT_ALGORITHM])

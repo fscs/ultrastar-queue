@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, Cookie, Response, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from ..app import queue_service, db_controller
+from backend.src.database.services.session import SessionService
+from ..app import queue_service, db_service
 from ..exceptions.queue import (QueueClosedHTTPException,
                                 SongAlreadySungHTTPException,
                                 SongRecentlySungHTTPException,
@@ -11,7 +12,6 @@ from ..exceptions.queue import (QueueClosedHTTPException,
                                 SongNotInDatabaseHTTPException,
                                 SongAlreadyInQueueHTTPException)
 from ..schemas.queue import SongInQueue
-from ..services.session import SessionService
 
 queue_router = APIRouter(
     prefix="/queue",
@@ -19,9 +19,6 @@ queue_router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}}
 )
-
-TIME_BETWEEN_SUBMITTING_SONGS: timedelta = timedelta(seconds=60)  # TODO
-SUBMITTING_SONGS_IN_TIMEFRAME_IS_BLOCKED: bool = True  # TODO
 
 
 @queue_router.get("/")
@@ -39,13 +36,13 @@ async def add_song_to_queue(
         response: Response,
         requested_song_id: int,
         singer: str,
-        session: AsyncSession = Depends(db_controller.get_session),
+        session: AsyncSession = Depends(db_service.get_session),
         last_added: datetime | None = Cookie(None)
 ):
     if last_added is not None:
-        if last_added > (datetime.now() - TIME_BETWEEN_SUBMITTING_SONGS):
+        if last_added > (datetime.now() - queue_service.time_between_song_submissions):
             raise CantSubmitSongHTTPException(
-                detail=f"Please wait {TIME_BETWEEN_SUBMITTING_SONGS} before submitting a new song"
+                detail=f"Please wait {queue_service.time_between_song_submissions} before submitting a new song"
             )
 
     song_in_db = await SessionService.get_song_by_id(session, requested_song_id)
@@ -56,7 +53,7 @@ async def add_song_to_queue(
         raise SongAlreadyInQueueHTTPException(detail=f"Song {song_in_db.title} by {song_in_db.artist} is "
                                                      f"already in queue")
 
-    if not queue_service.is_queue_open():
+    if not queue_service.queue_is_open():
         raise QueueClosedHTTPException()
 
     if queue_service.has_song_been_sung_max_times(song_in_db):
