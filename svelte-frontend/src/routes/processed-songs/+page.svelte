@@ -2,16 +2,16 @@
     import {ProcessedSongsStore} from "../../stores.js";
     import {onMount} from "svelte";
     import SongTable from "$lib/SongTable.svelte";
+    import {getProcessedSongsURL} from "$lib/backend_routes.js";
 
     onMount(async () => {
-        const endpoint = "http://localhost:8000/queue/processed-songs"
-        const response = await fetch(endpoint)
+        const response = await fetch(getProcessedSongsURL)
         const processedSongs = await response.json()
         ProcessedSongsStore.set(processedSongs)
     });
 
     const intToDateStr = (int) => {
-        let date = new Date(0,0,0,0,0,int)
+        let date = new Date(0, 0, 0, 0, 0, int)
         let min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
         let sec = date.getSeconds() < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`
         return `${date.getHours()}:${min}:${sec}`

@@ -1,17 +1,18 @@
 <script>
     import {goto} from "$app/navigation";
     import {ErrorAlertStore, SearchResultStore} from "../../stores.js";
+    import {getSongsByCriteriaURL} from "$lib/backend_routes.js";
 
     let title = "";
     let artist = "";
 
     const handleSubmit = () => {
-        let endpoint = `http://localhost:8000/songs/get-songs-by-criteria?`
+        let endpoint = getSongsByCriteriaURL
         if (title !== "") {
-            endpoint += `title=${title}&`
+            endpoint.searchParams.set("title", title)
         }
         if (artist !== "") {
-            endpoint += `artist=${artist}`
+            endpoint.searchParams.set("artist", artist)
         }
         fetch(endpoint, {
             method: "GET",

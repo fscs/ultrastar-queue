@@ -2,6 +2,8 @@
     import {SongStore} from "../../stores.js";
     import {onMount} from "svelte";
     import {goto} from "$app/navigation";
+    import {getSongByIdURL} from "$lib/backend_routes.js";
+
     export let data;
     let song;
 
@@ -9,7 +11,7 @@
         if ($SongStore.length) {
             song = $SongStore.find(song => song.id === parseInt(data.id))
         } else {
-            const endpoint = `http://localhost:8000/songs/${data.id}/`
+            const endpoint = `${getSongByIdURL.href}/${data.id}/`
             let response = await fetch(endpoint)
             if (response.status === 200) {
                 song = await response.json()

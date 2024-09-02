@@ -1,8 +1,7 @@
 import {ErrorAlertStore, SuccessAlertStore} from "../stores.js";
 
-export const getSettingValue = (funcName) => {
+export const getSettingValue = (endpoint) => {
 
-    const endpoint = (`http://localhost:8000/queue${funcName}`)
     return fetch(endpoint, {
         method: "GET",
         credentials: "include"
@@ -22,9 +21,8 @@ export const getSettingValue = (funcName) => {
 
 }
 
-export const setSettingValue = (func_url) => {
+export const setSettingValue = (endpoint) => {
 
-    const endpoint = (`http://localhost:8000/queue${func_url}`)
     fetch(endpoint, {
         method: "PUT",
         credentials: "include"
@@ -32,8 +30,8 @@ export const setSettingValue = (func_url) => {
         .then(response => {
             if (response.ok) {
                 response.json().then((json) => {
-                SuccessAlertStore.update(prev => [...prev, json["message"]])
-                    })
+                    SuccessAlertStore.update(prev => [...prev, json["message"]])
+                })
             } else {
                 return Promise.reject(response)
             }
@@ -46,9 +44,8 @@ export const setSettingValue = (func_url) => {
 
 }
 
-export const deleteSettingValue = (func_url) => {
+export const deleteSettingValue = (endpoint) => {
 
-    const endpoint = (`http://localhost:8000/queue${func_url}`)
     fetch(endpoint, {
         method: "DELETE",
         credentials: "include"
@@ -56,8 +53,8 @@ export const deleteSettingValue = (func_url) => {
         .then(response => {
             if (response.ok) {
                 response.json().then((json) => {
-                SuccessAlertStore.update(prev => [...prev, json["message"]])
-                    })
+                    SuccessAlertStore.update(prev => [...prev, json["message"]])
+                })
             } else {
                 return Promise.reject(response)
             }

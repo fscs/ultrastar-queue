@@ -1,16 +1,16 @@
 <script>
     import {ErrorAlertStore, SuccessAlertStore, User} from "../stores.js";
     import {goto} from "$app/navigation";
+    import {loginURL} from "./backend_routes.js";
 
     let username = "";
     let password = "";
 
     const login = () => {
-        const endpoint = "http://localhost:8000/login"
         let form_data = new FormData()
         form_data.append('username', username)
         form_data.append('password', password)
-        fetch(endpoint, {
+        fetch(loginURL, {
             method: "POST",
             credentials: "include",
             //headers: {
@@ -48,11 +48,13 @@
         <div class="col-md-10 mx-auto col-lg-5">
             <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary" on:submit|preventDefault={login}>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="username" placeholder="bestUsername" bind:value={username} required>
+                    <input bind:value={username} class="form-control" id="username" placeholder="bestUsername"
+                           required type="text">
                     <label for="username">Username</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="password" class="form-control" id="password" placeholder="Password" bind:value={password} required>
+                    <input bind:value={password} class="form-control" id="password" placeholder="Password"
+                           required type="password">
                     <label for="password">Password</label>
                 </div>
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>

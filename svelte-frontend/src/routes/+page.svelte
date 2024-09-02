@@ -3,19 +3,19 @@
     import {onMount} from "svelte"
     import {goto} from "$app/navigation";
     import SongTable from "$lib/SongTable.svelte";
+    import {getSongsURL} from "$lib/backend_routes.js";
 
 
     onMount(async () => {
         if (!$SongStore.length) {
-            const endpoint = "http://localhost:8000/songs/"
-            const response = await fetch(endpoint)
+            const response = await fetch(getSongsURL)
             const data = await response.json()
             SongStore.set(data)
         }
     });
 
     const intToDateStr = (int) => {
-        let date = new Date(0,0,0,0,0,int)
+        let date = new Date(0, 0, 0, 0, 0, int)
         let min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
         let sec = date.getSeconds() < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`
         return `${date.getHours()}:${min}:${sec}`

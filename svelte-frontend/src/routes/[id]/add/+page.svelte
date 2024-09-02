@@ -2,6 +2,7 @@
     import {ErrorAlertStore, QueueStore, SuccessAlertStore, User} from "../../../stores.js";
     import {goto} from "$app/navigation";
     import {onMount} from "svelte";
+    import {addSongToQueueAsAdminURL, addSongToQueueURL} from "$lib/backend_routes.js";
 
     export let singer = "";
     export let data;
@@ -16,7 +17,9 @@
 
     const handleSubmit = () => {
 
-        const endpoint = (`http://localhost:8000/queue/add-song?requested_song_id=${data.id}&singer=${singer}`)
+        const endpoint = addSongToQueueURL
+        endpoint.searchParams.set("requested_song_id", data.id)
+        endpoint.searchParams.set("singer", singer)
         fetch(endpoint, {
             method: "POST",
             credentials: "include"
@@ -43,7 +46,9 @@
 
     const handleSubmitAsAdmin = () => {
 
-        const endpoint = (`http://localhost:8000/queue/add-song-as-admin?requested_song_id=${data.id}&singer=${singer}`)
+        const endpoint = addSongToQueueAsAdminURL
+        endpoint.searchParams.set("requested_song_id", data.id)
+        endpoint.searchParams.set("singer", singer)
         fetch(endpoint, {
             method: "POST",
             credentials: "include"

@@ -4,19 +4,20 @@
 
     import SongTable from "$lib/SongTable.svelte";
     import {goto} from "$app/navigation";
+    import {checkSongInQueueByIndexURL, getQueueURL} from "$lib/backend_routes.js";
 
     $: isAdmin = $User === null ? false : $User.is_admin
 
     onMount(async () => {
-        const endpoint = "http://localhost:8000/queue/"
-        const response = await fetch(endpoint)
+        const response = await fetch(getQueueURL)
         const queue = await response.json()
         QueueStore.set(queue)
     });
 
     const handleCheck = (index) => {
         console.log(index)
-        const endpoint = `http://localhost:8000/queue/check-song-by-index?index=${index}`
+        const endpoint = checkSongInQueueByIndexURL
+        endpoint.searchParams.set("index", index)
         fetch(endpoint, {method: "PUT", credentials: "include"})
             .then(response => {
                 if (response.ok) {
@@ -26,9 +27,9 @@
                 }
             })
             .then((json) => {
-                        console.log(json)
-                        SuccessAlertStore.update(prev => [...prev, json["message"]])
-                    })
+                console.log(json)
+                SuccessAlertStore.update(prev => [...prev, json["message"]])
+            })
             .catch((response) => {
                 response.json().then((json) => {
                     ErrorAlertStore.update(prev => [...prev, json["detail"]])
@@ -37,7 +38,7 @@
     }
 
     const intToDateStr = (int) => {
-        let date = new Date(0,0,0,0,0,int)
+        let date = new Date(0, 0, 0, 0, 0, int)
         let min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
         let sec = date.getSeconds() < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`
         return `${date.getHours()}:${min}:${sec}`

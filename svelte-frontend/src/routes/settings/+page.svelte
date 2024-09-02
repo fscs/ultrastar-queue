@@ -1,14 +1,25 @@
 <script>
     import {onMount} from "svelte";
-    import {getSettingValue, setSettingValue, deleteSettingValue} from "$lib/settings_funcs.js";
+    import {deleteSettingValue, getSettingValue, setSettingValue} from "$lib/settings_funcs.js";
     import {User} from "../../stores.js";
+    import {
+        clearProcessedSongsURL,
+        clearQueueURL,
+        getIsQueueOpenURL,
+        getMaxTimesSongCanBeSungURL,
+        getTimeBetweenSameSongURL,
+        getTimeBetweenSubmittingSongsURL,
+        setIsQueueOpenURL,
+        setMaxTimesSongCanBeSungURL,
+        setTimeBetweenSameSongURL,
+        setTimeBetweenSubmittingSongsURL
+    } from "$lib/backend_routes.js";
 
     let popupClearQueue = false;
     let popupClearProcessedSongs = false;
 
     $: isAdmin = $User === null ? false : $User.is_admin
     export let queueIsOpen;
-
     export let timeBetweenSameSong;
     export let hoursBetweenSameSong
     export let minutesBetweenSameSong
@@ -23,55 +34,60 @@
     export let secondsBetweenSubmittingSongs = 0;
 
     onMount(async () => {
-        queueIsOpen = await getSettingValue("/get-is-queue-open");
-        timeBetweenSameSong = await getSettingValue("/get-time-between-same-song");
+        queueIsOpen = await getSettingValue(getIsQueueOpenURL);
+        timeBetweenSameSong = await getSettingValue(getTimeBetweenSameSongURL);
         timeBetweenSameSong = new Date(0, 0, 0, 0, 0, timeBetweenSameSong)
         hoursBetweenSameSong = timeBetweenSameSong.getHours()
         minutesBetweenSameSong = timeBetweenSameSong.getMinutes()
         secondsBetweenSameSong = timeBetweenSameSong.getSeconds()
-        maxTimesSongCanBeSung = await getSettingValue("/get-max-times-song-can-be-sung")
-        timeBetweenSubmittingSongs = await getSettingValue("/get-time-between-submitting-songs");
+        maxTimesSongCanBeSung = await getSettingValue(getMaxTimesSongCanBeSungURL)
+        timeBetweenSubmittingSongs = await getSettingValue(getTimeBetweenSubmittingSongsURL);
         timeBetweenSubmittingSongs = new Date(0, 0, 0, 0, 0, timeBetweenSubmittingSongs)
         hoursBetweenSubmittingSongs = timeBetweenSubmittingSongs.getHours()
         minutesBetweenSubmittingSongs = timeBetweenSubmittingSongs.getMinutes()
         secondsBetweenSubmittingSongs = timeBetweenSubmittingSongs.getSeconds()
     });
 
-    const setQueueIsOpen = () => {
-        setSettingValue(`/set-is-queue-open?open_queue=${queueIsOpen}`);
+    const setIsQueueOpen = () => {
+        const endpoint = setIsQueueOpenURL
+        endpoint.searchParams.set("open_queue", queueIsOpen)
+        setSettingValue(endpoint);
     }
 
     const setTimeBetweenSameSong = () => {
-        setSettingValue(`/set-time-between-same-song` +
-            `?seconds=${secondsBetweenSameSong}` +
-            `&minutes=${minutesBetweenSameSong}` +
-            `&hours=${hoursBetweenSameSong}`)
+        const endpoint = setTimeBetweenSameSongURL
+        endpoint.searchParams.set("seconds", secondsBetweenSameSong)
+        endpoint.searchParams.set("minutes", minutesBetweenSameSong)
+        endpoint.searchParams.set("hours", hoursBetweenSameSong)
+        setSettingValue(endpoint)
     }
 
     const setMaxTimesSongCanBeSung = () => {
-        setSettingValue(`/set-max-times-song-can-be-sung?max_times=${maxTimesSongCanBeSung}`)
+        const endpoint = setMaxTimesSongCanBeSungURL
+        endpoint.searchParams.set("max_times", maxTimesSongCanBeSung)
+        setSettingValue(endpoint)
     }
 
     const setTimeBetweenSubmittingSongs = () => {
-
-        setSettingValue(`/set-time-between-submitting-songs` +
-            `?seconds=${secondsBetweenSubmittingSongs}` +
-            `&minutes=${minutesBetweenSubmittingSongs}` +
-            `&hours=${hoursBetweenSubmittingSongs}`)
+        const endpoint = setTimeBetweenSubmittingSongsURL
+        endpoint.searchParams.set("seconds", secondsBetweenSubmittingSongs)
+        endpoint.searchParams.set("minutes", minutesBetweenSubmittingSongs)
+        endpoint.searchParams.set("hours", hoursBetweenSubmittingSongs)
+        setSettingValue(endpoint)
     }
 
     const clearQueue = () => {
-        deleteSettingValue(`/clear-queue`)
+        deleteSettingValue(clearQueueURL)
     }
 
     const clearProcessedSongs = () => {
-        deleteSettingValue(`/clear-processed-songs`)
+        deleteSettingValue(clearProcessedSongsURL)
     }
 
 </script>
 
 {#if isAdmin}
-    <form on:submit={setQueueIsOpen}>
+    <form on:submit={setIsQueueOpen}>
         <div class="mb-3 form-check form-switch">
             <input bind:checked={queueIsOpen} class="form-check-input" id="flexSwitchCheckChecked" role="switch"
                    type="checkbox">

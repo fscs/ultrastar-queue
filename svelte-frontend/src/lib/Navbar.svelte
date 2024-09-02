@@ -1,13 +1,13 @@
 <script>
     import {ErrorAlertStore, SuccessAlertStore, User} from "../stores.js";
     import {onMount} from "svelte";
+    import {getCurrentUserURL, logoutURL} from "./backend_routes.js";
 
-    $: isLoggedIn = $User === null ? false : true
+    $: isLoggedIn = $User !== null
     $: isAdmin = $User === null ? false : $User.is_admin
 
     const logout = () => {
-        const endpoint = "http://localhost:8000/logout"
-        fetch(endpoint, {
+        fetch(logoutURL, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -38,35 +38,34 @@
 
     onMount(async () => {
         if (!$User) {
-        const endpoint = "http://localhost:8000/current-user"
-        fetch(endpoint, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json()
-                } else if (response.status === 401) {
-                    return Promise.resolve({"user": false})
-                } else {
-                    return Promise.reject(response)
-                }
+            fetch(getCurrentUserURL, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
             })
-            .then((data) => {
-                if (data["user"] === true) {
-                    User.update(val => val = {...data})
-                }
-            })
-            .catch((response) => {
-                response.json().then((json) => {
-                    ErrorAlertStore.update(prev => [...prev, json["detail"]])
+                .then(response => {
+                    if (response.ok) {
+                        return response.json()
+                    } else if (response.status === 401) {
+                        return Promise.resolve({"user": false})
+                    } else {
+                        return Promise.reject(response)
+                    }
                 })
-            });
-    }
+                .then((data) => {
+                    if (data["user"] === true) {
+                        User.update(val => val = {...data})
+                    }
+                })
+                .catch((response) => {
+                    response.json().then((json) => {
+                        ErrorAlertStore.update(prev => [...prev, json["detail"]])
+                    })
+                });
+        }
     })
 
 </script>
