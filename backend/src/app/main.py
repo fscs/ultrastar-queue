@@ -1,7 +1,6 @@
 import os
 from contextlib import asynccontextmanager
 
-from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -16,10 +15,11 @@ from backend.src.app.songs.crud import add_song_if_not_in_db
 from backend.src.app.database import init_db, clean_db
 from backend.src.app.songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from backend.src.app.queue.service import QueueService
+from .config import settings
 
 
 async def populate_database():
-    path = config("PATH_TO_ULTRASTAR_SONG_DIR")
+    path = settings.PATH_TO_ULTRASTAR_SONG_DIR
     file_paths = UltrastarFileParser.get_song_file_paths(path)
     for file_path in file_paths:
         try:
@@ -91,7 +91,8 @@ def create_app():
     app.include_router(admin_router)
 
     origins = [
-        f"{config("FRONTEND_SERVER")}:{config("FRONTEND_PORT")}",
+        f"http://{settings.FRONTEND_HOST}:{settings.FRONTEND_PORT}",
+        f"https://{settings.FRONTEND_HOST}:{settings.FRONTEND_PORT}"
     ]
 
     app.add_middleware(
