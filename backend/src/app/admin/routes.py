@@ -1,32 +1,31 @@
 from datetime import timedelta
 
-from fastapi import Depends, APIRouter, status
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter, status, Depends
 
-from backend.src.database.models.songs import UltrastarSong
-from backend.src.database.services.session import SessionService
-from ..app import db_service, queue_service
-from ..exceptions.queue import (SongNotInDatabaseHTTPException, QueueEmptyError, NotAValidNumberHTTPException,
-                                QueueEmptyHTTPException, QueueIndexError, QueueIndexHTTPException)
-from ..schemas.queue import SongInQueue
-from ..schemas.songs import UltrastarSongBase
-from ..services import auth
+from backend.src.app.queue.exceptions import (QueueEmptyError,
+                                              QueueIndexError,
+                                              QueueIndexHTTPException,
+                                              QueueEmptyHTTPException,
+                                              SongNotInDatabaseHTTPException,
+                                              NotAValidNumberHTTPException)
+from backend.src.app.queue.schemas import SongInQueue
+from backend.src.app.songs import crud as crud_songs
+from backend.src.app.songs.models import UltrastarSong
+from backend.src.app.songs.schemas import UltrastarSongBase
+from ..dependencies import is_admin, AsyncSessionDep
+from ..main import queue_service
 
 admin_router = APIRouter(
     prefix="/admin",
     tags=["admin"],
-    dependencies=[Depends(auth.is_admin)],
+    dependencies=[Depends(is_admin)],
     responses={404: {"description": "Not found"}}
 )
 
 
 @admin_router.post("/add-song-as-admin", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
-async def add_song_to_queue_as_admin(
-        requested_song_id: int,
-        singer: str,
-        session: AsyncSession = Depends(db_service.get_session)
-):
-    song_in_db = await SessionService.get_song_by_id(session, requested_song_id)
+async def add_song_to_queue_as_admin(session: AsyncSessionDep, requested_song_id: int, singer: str):
+    song_in_db = await crud_songs.get_song_by_id(session, requested_song_id)
     if not song_in_db:
         raise SongNotInDatabaseHTTPException()
 
@@ -136,10 +135,7 @@ def set_queue_is_open(open_queue: bool):
 
 
 @admin_router.post("/create-song", status_code=status.HTTP_201_CREATED)
-async def create_song(
-        song_data: UltrastarSongBase,
-        session: AsyncSession = Depends(db_service.get_session)
-) -> UltrastarSong:
+async def create_song(session: AsyncSessionDep, song_data: UltrastarSongBase) -> UltrastarSong:
     song = UltrastarSong(**song_data.model_dump())
-    song = await SessionService.add_song(session=session, song=song)
+    song = await crud_songs.add_song(session=session, song=song)
     return song

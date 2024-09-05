@@ -3,6 +3,20 @@ from typing import Dict
 from fastapi import HTTPException, status
 
 
+class QueueEmptyError(Exception):
+    _default_msg: str = "Queue is empty"
+
+    def __init__(self, msg: str = _default_msg) -> None:
+        self.msg: str = msg
+
+
+class QueueIndexError(Exception):
+    _default_msg: str = "Requested index is out of bounds"
+
+    def __init__(self, msg: str = _default_msg) -> None:
+        self.msg: str = msg
+
+
 class QueueClosedHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_403_FORBIDDEN
     _default_detail: str = "Queue is closed. Can't add any more songs."
@@ -17,16 +31,9 @@ class QueueClosedHTTPException(HTTPException):
         self.headers: Dict[str, str] = headers
 
 
-class QueueEmptyError(Exception):
-    _default_msg: str = "Queue is empty"
-
-    def __init__(self, msg: str = _default_msg) -> None:
-        self.msg: str = msg
-
-
-class QueueEmptyHTTPException(HTTPException, QueueEmptyError):
+class QueueEmptyHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_404_NOT_FOUND
-    _default_detail: str = QueueEmptyError._default_msg
+    _default_detail: str = "Queue is empty"
 
     def __init__(self,
                  status_code: int = _default_status_code,
@@ -38,16 +45,9 @@ class QueueEmptyHTTPException(HTTPException, QueueEmptyError):
         self.headers: Dict[str, str] = headers
 
 
-class QueueIndexError(Exception):
-    _default_msg: str = "Requested index is out of bounds"
-
-    def __init__(self, msg: str = _default_msg) -> None:
-        self.msg: str = msg
-
-
-class QueueIndexHTTPException(HTTPException, QueueIndexError):
+class QueueIndexHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_404_NOT_FOUND
-    _default_detail: str = QueueIndexError._default_msg
+    _default_detail: str = "Requested index is out of bounds"
 
     def __init__(self,
                  status_code: int = _default_status_code,
@@ -61,7 +61,7 @@ class QueueIndexHTTPException(HTTPException, QueueIndexError):
 
 class SongNotInDatabaseHTTPException(HTTPException):
     _default_status_code: int = status.HTTP_404_NOT_FOUND
-    _default_detail: str = "Song not in database"
+    _default_detail: str = "Song not in db"
 
     def __init__(self,
                  status_code: int = _default_status_code,

@@ -2,9 +2,10 @@ from datetime import timedelta
 
 from fastapi import status
 
-from ....src.app import app, queue_service
-from backend.src.app.services.auth import is_admin
-from backend.src.app.exceptions.queue import (
+from ....src.api import queue_service
+from ....src import app
+from backend.src.services.auth import is_admin
+from backend.src.api.exceptions.queue import (
     SongNotInDatabaseHTTPException,
     QueueClosedHTTPException,
     SongAlreadyInQueueHTTPException,

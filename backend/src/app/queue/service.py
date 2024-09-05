@@ -1,19 +1,21 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 
-from backend.src.database.models.songs import UltrastarSong
-from ..exceptions.queue import QueueEmptyError, QueueIndexError
-from ..schemas.queue import SongInQueue, ProcessedSong
+from .config import QueueBaseSettings
+from .exceptions import QueueEmptyError, QueueIndexError
+from .schemas import SongInQueue, ProcessedSong
+from ..songs.models import UltrastarSong
 
 
 class QueueService:
 
     def __init__(self):
-        self._time_between_same_song: timedelta = timedelta(minutes=60)
-        self._max_times_song_can_be_sung: int = 2
+        self._time_between_same_song: timedelta = QueueBaseSettings.TIME_BETWEEN_SAME_SONG
+        self._max_times_song_can_be_sung: int = QueueBaseSettings.MAX_TIMES_SONG_CAN_BE_SUNG
+        self._queue_is_open: bool = QueueBaseSettings.QUEUE_IS_OPEN
+        self._time_between_song_submissions: timedelta = QueueBaseSettings.TIME_BETWEEN_SONG_SUBMISSIONS
         self._queue: list[SongInQueue] = []
         self._processed_songs: list[ProcessedSong] = []
-        self._queue_is_open: bool = True
-        self._time_between_song_submissions: timedelta = timedelta(minutes=60)
 
     @property
     def queue(self) -> list[SongInQueue]:

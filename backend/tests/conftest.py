@@ -5,17 +5,17 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from ..src.app import app
-from ..src.app import db_service
-from backend.src.database.models import UltrastarSong
-from backend.src.app.routes import datetime
-from backend.src.app.schemas.queue import SongInQueue, ProcessedSong
-from backend.src.app.schemas import UltrastarSongBase
+from ..src import app
+from ..src.api import db_service
+from backend.src.db.models import UltrastarSong
+from backend.src.api.routes import datetime
+from backend.src.app.queue.schemas import SongInQueue, ProcessedSong
+from backend.src.schemas import UltrastarSongBase
 
 
 @pytest.fixture(scope="session")
 def client():
-    app.dependency_overrides[db_service.get_session] = lambda: None
+    app.dependency_overrides[db_service.get_async_session] = lambda: None
     yield TestClient(app)
     app.dependency_overrides = {}
 
@@ -155,7 +155,7 @@ def song2_in_processed_queue(song2, fake_datetime) -> ProcessedSong:
 
 @pytest.fixture()
 def mock_db_query_get_songs():
-    patcher = patch('src.database.controller.SessionController.get_songs')
+    patcher = patch('src.db.controller.SessionController.get_songs')
     mock = patcher.start()
     yield mock
     patcher.stop()
@@ -163,7 +163,7 @@ def mock_db_query_get_songs():
 
 @pytest.fixture()
 def mock_db_query_get_song_by_id():
-    patcher = patch('src.database.controller.SessionController.get_song_by_id')
+    patcher = patch('src.db.controller.SessionController.get_song_by_id')
     mock = patcher.start()
     yield mock
     patcher.stop()
@@ -171,7 +171,7 @@ def mock_db_query_get_song_by_id():
 
 @pytest.fixture()
 def mock_db_query_add_song():
-    patcher = patch('src.database.controller.SessionController.add_song')
+    patcher = patch('src.db.controller.SessionController.add_song')
     mock = patcher.start()
     yield mock
     patcher.stop()
@@ -179,7 +179,7 @@ def mock_db_query_add_song():
 
 @pytest.fixture()
 def mock_db_query_get_songs_by_criteria():
-    patcher = patch('src.database.controller.SessionController.get_songs_by_criteria')
+    patcher = patch('src.db.controller.SessionController.get_songs_by_criteria')
     mock = patcher.start()
     yield mock
     patcher.stop()
