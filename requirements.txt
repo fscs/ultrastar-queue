@@ -10,3 +10,4 @@ httpx==0.23.0
 pytest~=8.3.1
 tinytag~=1.10.1
 pydantic-settings~=2.4.0
+alembic~=1.13.2

@@ -10,9 +10,8 @@ from backend.src.app.songs.models import UltrastarSong
 from backend.src.logging.controller import setup_logging, get_db_logger
 from ultrastar_file_parser.parser import UltrastarFileParser
 from backend.src.app.dependencies import get_async_session
-from backend.src.app.auth.crud import add_user
+from backend.src.app.auth.crud import add_user, get_user_by_username
 from backend.src.app.songs.crud import add_song_if_not_in_db
-from backend.src.app.database import init_db, clean_db
 from backend.src.app.songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from backend.src.app.queue.service import QueueService
 from .config import settings
@@ -54,8 +53,10 @@ async def add_users_to_db():
     session: AsyncSession = (await anext(generator))
     user1 = User(username="bestUser", is_admin=False, hashed_password=pw)
     user2 = User(username="bestAdmin", is_admin=True, hashed_password=pw)
-    await add_user(session, user1)
-    await add_user(session, user2)
+    if not await get_user_by_username(session, user1.username):
+        await add_user(session, user1)
+    if not await get_user_by_username(session, user2.username):
+        await add_user(session, user2)
     try:
         await anext(generator)
     except StopAsyncIteration:
@@ -64,7 +65,6 @@ async def add_users_to_db():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
     try:
         await populate_database()
         await add_users_to_db()
@@ -74,7 +74,6 @@ async def lifespan(app: FastAPI):
         else:
             raise e
     yield
-    await clean_db()
 
 
 def create_app():

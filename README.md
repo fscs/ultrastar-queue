@@ -5,7 +5,8 @@
 ## Getting started
 
 - install the requirements from requirements.txt
-- python main.py
+- alembic upgrade head
+- in /src: python main.py
 - in /svelte-app: npm install
 - in /svelte-app: npm run dev -- --open
 
