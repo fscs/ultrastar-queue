@@ -3,7 +3,7 @@
   "disable_existing_loggers": false,
   "filters": {
     "only_info": {
-      "()": "backend.src.logging.filters.OnlyInfoFilter"
+      "()": "src.logging.filters.OnlyInfoFilter"
     }
   },
   "formatters": {

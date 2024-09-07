@@ -1,0 +1,18 @@
+services:
+
+  backend:
+    build: ./backend
+    # restart: always
+    ports:
+      - "${BACKEND_DOCKER_EXPOSED_PORT}:${BACKEND_PORT}"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SIGNING_SECRET_KEY=${JWT_SIGNING_SECRET_KEY}
+      - PATH_TO_ULTRASTAR_SONG_DIR=${PATH_TO_ULTRASTAR_SONG_DIR}
+      - FRONTEND_HOST=${FRONTEND_HOST}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+      - BACKEND_HOST=${BACKEND_HOST}
+      - BACKEND_PORT=${BACKEND_PORT}
+

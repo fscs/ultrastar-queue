@@ -1,17 +1,17 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, status, Depends
+from src.app.queue.exceptions import (QueueEmptyError,
+                                      QueueIndexError,
+                                      QueueIndexHTTPException,
+                                      QueueEmptyHTTPException,
+                                      SongNotInDatabaseHTTPException,
+                                      NotAValidNumberHTTPException)
+from src.app.queue.schemas import SongInQueue
+from src.app.songs import crud as crud_songs
+from src.app.songs.models import UltrastarSong
+from src.app.songs.schemas import UltrastarSongBase
 
-from backend.src.app.queue.exceptions import (QueueEmptyError,
-                                              QueueIndexError,
-                                              QueueIndexHTTPException,
-                                              QueueEmptyHTTPException,
-                                              SongNotInDatabaseHTTPException,
-                                              NotAValidNumberHTTPException)
-from backend.src.app.queue.schemas import SongInQueue
-from backend.src.app.songs import crud as crud_songs
-from backend.src.app.songs.models import UltrastarSong
-from backend.src.app.songs.schemas import UltrastarSongBase
 from ..dependencies import is_admin, AsyncSessionDep
 from ..main import queue_service
 

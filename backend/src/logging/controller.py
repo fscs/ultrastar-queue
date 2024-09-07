@@ -1,11 +1,12 @@
 import atexit
 import json
 import logging.config
-import pathlib
+from pathlib import Path
 
 
 def setup_logging() -> None:
-    config_file = pathlib.Path("backend/src/logging/config.json")
+    config_file = Path(__file__).parent / "config.json"
+    # config_file = pathlib.Path("backend/src/logging/config.json")
     with open(config_file, "r") as f:
         config = json.load(f)
 

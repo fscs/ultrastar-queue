@@ -5,16 +5,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from backend.src.app.auth.models import User
-from backend.src.app.songs.models import UltrastarSong
-from backend.src.logging.controller import setup_logging, get_db_logger
-from ultrastar_file_parser.parser import UltrastarFileParser
-from backend.src.app.dependencies import get_async_session
-from backend.src.app.auth.crud import add_user, get_user_by_username
-from backend.src.app.songs.crud import add_song_if_not_in_db
-from backend.src.app.songs.schemas import UltrastarSongBase, UltrastarSongConverter
-from backend.src.app.queue.service import QueueService
+from .auth.crud import add_user, get_user_by_username
+from .auth.models import User
 from .config import settings
+from .dependencies import get_async_session
+from .queue.service import QueueService
+from .songs.crud import add_song_if_not_in_db
+from .songs.models import UltrastarSong
+from .songs.schemas import UltrastarSongBase, UltrastarSongConverter
+from ..logging.controller import setup_logging, get_db_logger
+from ..ultrastar_file_parser import UltrastarFileParser
 
 
 async def populate_database():
@@ -79,10 +79,10 @@ async def lifespan(app: FastAPI):
 def create_app():
     app = FastAPI(lifespan=lifespan)
 
-    from backend.src.app.auth.routes import auth_router
-    from backend.src.app.queue.routes import queue_router
-    from backend.src.app.songs.routes import song_router
-    from backend.src.app.admin.routes import admin_router
+    from src.app.auth.routes import auth_router
+    from src.app.queue.routes import queue_router
+    from src.app.songs.routes import song_router
+    from src.app.admin.routes import admin_router
 
     app.include_router(queue_router)
     app.include_router(song_router)

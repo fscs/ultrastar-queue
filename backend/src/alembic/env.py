@@ -7,16 +7,14 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 
-from backend.src.app.config import settings
-from backend.src.app.auth.models import User
-from backend.src.app.songs.models import UltrastarSong
-
+from src.app.auth.models import User
+from src.app.songs.models import UltrastarSong
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
+config.set_main_option("sqlalchemy.url", "sqlite+aiosqlite:///db.sqlite")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
