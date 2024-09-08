@@ -18,7 +18,7 @@ COPY --from=build /app/build ./build
 
 COPY --from=build /app/package.json .
 
-RUN npm install --production
+RUN npm install --omit=dev
 
 COPY ./static ./static
 

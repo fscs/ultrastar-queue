@@ -4,11 +4,10 @@
 
 ## Getting started
 
-- install the requirements from requirements.txt
-- alembic upgrade head
-- in /src: python main.py
-- in /svelte-app: npm install
-- in /svelte-app: npm run dev -- --open
+- docker compose up
+- frontend at: localhost:3000
+- backend at: localhost:8000
+- backend docs at: localhost:8000/docs
 
 
 - Login for admin
@@ -19,18 +18,8 @@
 - Login for generic user
   - username: bestUser
   - password: password
-  - (Generic user is just for testing in case there'll be user accounts someday. Right now the user is not supposed to do anything a not-loged-in person can't do.)
+  - (Generic user is just for testing in case there'll be user accounts someday. Right now the user is not supposed to do anything a not-logged-in person can't do.)
 
-
-- Login for admin
-  - username: bestAdmin
-  - password: password
-
-
-- Login for generic user
-  - username: bestUser
-  - password: password
-  - (Generic user is just for testing in case there'll be user accounts someday. Right now the user is not supposed to do anything a not-loged-in person can't do.)
 
 ## Used Sources
 
@@ -48,6 +37,9 @@
 - https://www.youtube.com/watch?v=aFxcq0XTmRg
   - used for svelte-app/src/lib/Login.svelte
 - https://stackoverflow.com/a/67660773
+- dockerize sveltekit
+  - https://www.youtube.com/watch?v=pUlpMz1IMJM&t=90s
+  - https://www.youtube.com/watch?v=B0aOquuaU9Y
 
 ## Used bootstrap
 - routes/+layout.svelte => bootstrap/examples/navbar-fixed
