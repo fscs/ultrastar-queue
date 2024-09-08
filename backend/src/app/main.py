@@ -15,6 +15,7 @@ from .songs.models import UltrastarSong
 from .songs.schemas import UltrastarSongBase, UltrastarSongConverter
 from ..logging.controller import setup_logging, get_db_logger
 from ..ultrastar_file_parser import UltrastarFileParser
+from ..ultrastar_file_parser.exceptions import UltrastarMatchingError
 
 
 async def populate_database():
@@ -23,7 +24,7 @@ async def populate_database():
     for file_path in file_paths:
         try:
             attr_dict = UltrastarFileParser.parse_file_for_ultrastar_song_attributes(file_path)
-        except ValueError as e:
+        except UltrastarMatchingError as e:
             db_logger.error(e.args[0] + f"Probably not an ultrastar file: {file_path}\n")
             continue
         song_converter = UltrastarSongConverter(**attr_dict)
