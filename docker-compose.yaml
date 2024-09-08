@@ -16,3 +16,18 @@ services:
       - BACKEND_HOST=${BACKEND_HOST}
       - BACKEND_PORT=${BACKEND_PORT}
 
+
+  frontend:
+    build: frontend
+    # restart: always
+    ports:
+      - "${FRONTEND_DOCKER_EXPOSED_PORT}:${FRONTEND_PORT}"
+    env_file:
+      - .env
+    environment:
+      - FRONTEND_HOST=${FRONTEND_HOST}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+      - BACKEND_HOST=${BACKEND_HOST}
+      - BACKEND_PORT=${BACKEND_PORT}
+    depends_on:
+      - backend

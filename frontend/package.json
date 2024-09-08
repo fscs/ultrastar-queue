@@ -16,7 +16,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"bootstrap": "^5.3.3",
+		"@sveltejs/adapter-node": "^5.2.2",
 		"save": "^2.9.0"
 	}
 }
