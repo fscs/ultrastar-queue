@@ -5,7 +5,8 @@
     import {getProcessedSongsURL} from "$lib/backend_routes.js";
 
     onMount(async () => {
-        const response = await fetch(getProcessedSongsURL)
+        const endpoint = new URL(getProcessedSongsURL)
+        const response = await fetch(endpoint)
         const processedSongs = await response.json()
         ProcessedSongsStore.set(processedSongs)
     });

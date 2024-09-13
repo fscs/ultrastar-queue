@@ -17,7 +17,7 @@
 
     const handleSubmit = () => {
 
-        const endpoint = addSongToQueueURL
+        const endpoint = new URL(addSongToQueueURL)
         endpoint.searchParams.set("requested_song_id", data.id)
         endpoint.searchParams.set("singer", singer)
         fetch(endpoint, {
@@ -46,7 +46,7 @@
 
     const handleSubmitAsAdmin = () => {
 
-        const endpoint = addSongToQueueAsAdminURL
+        const endpoint = new URL(addSongToQueueAsAdminURL)
         endpoint.searchParams.set("requested_song_id", data.id)
         endpoint.searchParams.set("singer", singer)
         fetch(endpoint, {

@@ -9,14 +9,14 @@
     $: isAdmin = $User === null ? false : $User.is_admin
 
     onMount(async () => {
-        const response = await fetch(getQueueURL)
+        const endpoint = new URL(getQueueURL)
+        const response = await fetch(endpoint)
         const queue = await response.json()
         QueueStore.set(queue)
     });
 
     const handleCheck = (index) => {
-        console.log(index)
-        const endpoint = checkSongInQueueByIndexURL
+        const endpoint = new URL(checkSongInQueueByIndexURL)
         endpoint.searchParams.set("index", index)
         fetch(endpoint, {method: "PUT", credentials: "include"})
             .then(response => {

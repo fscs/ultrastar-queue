@@ -8,7 +8,8 @@
 
     onMount(async () => {
         if (!$SongStore.length) {
-            const response = await fetch(getSongsURL)
+            const endpoint = new URL(getSongsURL)
+            const response = await fetch(endpoint)
             const data = await response.json()
             SongStore.set(data)
         }

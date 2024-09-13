@@ -7,7 +7,7 @@
     let artist = "";
 
     const handleSubmit = () => {
-        let endpoint = getSongsByCriteriaURL
+        let endpoint = new URL(getSongsByCriteriaURL)
         if (title !== "") {
             endpoint.searchParams.set("title", title)
         }

@@ -34,14 +34,17 @@
     export let secondsBetweenSongSubmissions = 0;
 
     onMount(async () => {
-        queueIsOpen = await getSettingValue(getQueueIsOpenURL);
-        timeBetweenSameSong = await getSettingValue(getTimeBetweenSameSongURL);
+        queueIsOpen = await getSettingValue(new URL(getQueueIsOpenURL));
+
+        timeBetweenSameSong = await getSettingValue(new URL(getTimeBetweenSameSongURL));
         timeBetweenSameSong = new Date(0, 0, 0, 0, 0, timeBetweenSameSong)
         hoursBetweenSameSong = timeBetweenSameSong.getHours()
         minutesBetweenSameSong = timeBetweenSameSong.getMinutes()
         secondsBetweenSameSong = timeBetweenSameSong.getSeconds()
-        maxTimesSongCanBeSung = await getSettingValue(getMaxTimesSongCanBeSungURL)
-        timeBetweenSongSubmissions = await getSettingValue(getTimeBetweenSongSubmissionsURL);
+
+        maxTimesSongCanBeSung = await getSettingValue(new URL(getMaxTimesSongCanBeSungURL))
+
+        timeBetweenSongSubmissions = await getSettingValue(new URL(getTimeBetweenSongSubmissionsURL));
         timeBetweenSongSubmissions = new Date(0, 0, 0, 0, 0, timeBetweenSongSubmissions)
         hoursBetweenSongSubmissions = timeBetweenSongSubmissions.getHours()
         minutesBetweenSongSubmissions = timeBetweenSongSubmissions.getMinutes()
@@ -49,13 +52,13 @@
     });
 
     const setQueueIsOpen = () => {
-        const endpoint = setQueueIsOpenURL
+        const endpoint = new URL(setQueueIsOpenURL)
         endpoint.searchParams.set("open_queue", queueIsOpen)
         setSettingValue(endpoint);
     }
 
     const setTimeBetweenSameSong = () => {
-        const endpoint = setTimeBetweenSameSongURL
+        const endpoint = new URL(setTimeBetweenSameSongURL)
         endpoint.searchParams.set("seconds", secondsBetweenSameSong)
         endpoint.searchParams.set("minutes", minutesBetweenSameSong)
         endpoint.searchParams.set("hours", hoursBetweenSameSong)
@@ -63,13 +66,13 @@
     }
 
     const setMaxTimesSongCanBeSung = () => {
-        const endpoint = setMaxTimesSongCanBeSungURL
+        const endpoint = new URL(setMaxTimesSongCanBeSungURL)
         endpoint.searchParams.set("max_times", maxTimesSongCanBeSung)
         setSettingValue(endpoint)
     }
 
     const setTimeBetweenSubmittingSongs = () => {
-        const endpoint = setTimeBetweenSongSubmissionsURL
+        const endpoint = new URL(setTimeBetweenSongSubmissionsURL)
         endpoint.searchParams.set("seconds", secondsBetweenSongSubmissions)
         endpoint.searchParams.set("minutes", minutesBetweenSongSubmissions)
         endpoint.searchParams.set("hours", hoursBetweenSongSubmissions)
@@ -77,11 +80,13 @@
     }
 
     const clearQueue = () => {
-        deleteSettingValue(clearQueueURL)
+        const endpoint = new URL(clearQueueURL)
+        deleteSettingValue(endpoint)
     }
 
     const clearProcessedSongs = () => {
-        deleteSettingValue(clearProcessedSongsURL)
+        const endpoint = new URL(clearProcessedSongsURL)
+        deleteSettingValue(endpoint)
     }
 
 </script>

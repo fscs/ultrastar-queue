@@ -11,7 +11,8 @@
         if ($SongStore.length) {
             song = $SongStore.find(song => song.id === parseInt(data.id))
         } else {
-            const endpoint = `${getSongByIdURL.href}/${data.id}/`
+            const url = `${getSongByIdURL}/${data.id}/`
+            const endpoint = new URL(url)
             let response = await fetch(endpoint)
             if (response.status === 200) {
                 song = await response.json()

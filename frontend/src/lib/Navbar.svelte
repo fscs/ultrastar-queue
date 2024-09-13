@@ -7,7 +7,8 @@
     $: isAdmin = $User === null ? false : $User.is_admin
 
     const logout = () => {
-        fetch(logoutURL, {
+        const endpoint = new URL(logoutURL)
+        fetch(endpoint, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -38,7 +39,8 @@
 
     onMount(async () => {
         if (!$User) {
-            fetch(getCurrentUserURL, {
+            const endpoint = new URL(getCurrentUserURL)
+            fetch(endpoint, {
                 method: "POST",
                 credentials: "include",
                 headers: {

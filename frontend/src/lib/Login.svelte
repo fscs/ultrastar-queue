@@ -10,7 +10,8 @@
         let form_data = new FormData()
         form_data.append('username', username)
         form_data.append('password', password)
-        fetch(loginURL, {
+        const endpoint = new URL(loginURL)
+        fetch(endpoint, {
             method: "POST",
             credentials: "include",
             //headers: {
