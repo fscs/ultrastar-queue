@@ -49,15 +49,14 @@ async def populate_database():
 
 
 async def add_users_to_db():
-    pw = "$2b$12$VBJFBBwpnnvb9dy.NHdPnOcliuN1pkOPBUMHkfNX8cFJWjl8GlM5O"
+    from src.app.auth.utils import get_password_hash
+
+    hashed_password = get_password_hash(settings.ADMIN_PASSWORD)
     generator = get_async_session()
     session: AsyncSession = (await anext(generator))
-    user1 = User(username="bestUser", is_admin=False, hashed_password=pw)
-    user2 = User(username="bestAdmin", is_admin=True, hashed_password=pw)
+    user1 = User(username=settings.ADMIN_USERNAME, is_admin=True, hashed_password=hashed_password)
     if not await get_user_by_username(session, user1.username):
         await add_user(session, user1)
-    if not await get_user_by_username(session, user2.username):
-        await add_user(session, user2)
     try:
         await anext(generator)
     except StopAsyncIteration:
@@ -78,7 +77,7 @@ async def lifespan(app: FastAPI):
 
 
 def create_app():
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI(lifespan=lifespan, docs_url=settings.SWAGGER_UI_URL, redoc_url=settings.REDOC_URL)
 
     from src.app.auth.routes import auth_router
     from src.app.queue.routes import queue_router

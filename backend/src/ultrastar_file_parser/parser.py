@@ -111,7 +111,7 @@ class UltrastarFileParser:
         return song_paths
 
     @classmethod
-    def parse_file_for_ultrastar_song_attributes(cls, file_path: str) -> Dict[str, str]:
+    def parse_file_for_ultrastar_song_attributes(cls, file_path: str, encoding: str = None) -> Dict[str, str]:
         """Return a dictionary with Attribute - Value pairs from an Ultrastar File.
 
         Parses the file at the given path for lines matching the Ultrastar file format.
@@ -123,6 +123,8 @@ class UltrastarFileParser:
         ----------
         file_path : str
             The path to the file to be parsed.
+        encoding: str, optional
+            The encoding for the file.
 
         Returns
         -------
@@ -141,7 +143,8 @@ class UltrastarFileParser:
         """
         ultrastar_song_attributes: Dict[str, str] = {}
         lyrics = ""
-        encoding = cls._get_file_encoding(file_path)
+        if not encoding:
+            encoding = cls._get_file_encoding(file_path)
         with open(file_path, "r", encoding=encoding) as file:
             for line in file:
                 regex_match = cls._match_line_format(line)
