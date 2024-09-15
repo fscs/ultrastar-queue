@@ -27,8 +27,8 @@
                 }
             })
             .then((json) => {
-                console.log(json)
                 SuccessAlertStore.update(prev => [...prev, json["message"]])
+                goto("/queue/reload")
             })
             .catch((response) => {
                 response.json().then((json) => {
