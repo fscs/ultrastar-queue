@@ -7,18 +7,12 @@
 - docker compose up
 - frontend at: localhost:3000
 - backend at: localhost:8000
-- backend docs at: localhost:8000/docs
+- backend docs at: localhost:8000/docs or localhost:8000/redoc
 
 
 - Login for admin
   - username: bestAdmin
   - password: password
-
-
-- Login for generic user
-  - username: bestUser
-  - password: password
-  - (Generic user is just for testing in case there'll be user accounts someday. Right now the user is not supposed to do anything a not-logged-in person can't do.)
 
 
 ## Used Sources

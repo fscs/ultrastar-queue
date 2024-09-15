@@ -9,8 +9,6 @@ from src.app.queue.exceptions import (QueueEmptyError,
                                       NotAValidNumberHTTPException)
 from src.app.queue.schemas import SongInQueue
 from src.app.songs import crud as crud_songs
-from src.app.songs.models import UltrastarSong
-from src.app.songs.schemas import UltrastarSongBase
 
 from ..dependencies import is_admin, AsyncSessionDep
 from ..main import queue_service
@@ -132,10 +130,3 @@ def get_queue_is_open() -> bool:
 def set_queue_is_open(open_queue: bool):
     queue_service.queue_is_open = open_queue
     return {"message": f"Set queue is open to {queue_service.queue_is_open}"}
-
-
-@admin_router.post("/create-song", status_code=status.HTTP_201_CREATED)
-async def create_song(session: AsyncSessionDep, song_data: UltrastarSongBase) -> UltrastarSong:
-    song = UltrastarSong(**song_data.model_dump())
-    song = await crud_songs.add_song(session=session, song=song)
-    return song

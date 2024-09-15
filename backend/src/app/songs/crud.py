@@ -26,10 +26,8 @@ async def get_songs_by_criteria(
         statement = (select(UltrastarSong)
                      .where(UltrastarSong.title == title, UltrastarSong.artist == artist))
     elif title:
-        # statement = select(UltrastarSong).where(UltrastarSong.title == title)
         statement = select(UltrastarSong).where(col(UltrastarSong.title).contains(title))
     elif artist:
-        # statement = select(UltrastarSong).where(UltrastarSong.artist == artist)
         statement = select(UltrastarSong).where(col(UltrastarSong.artist).contains(artist))
     else:
         statement = select(UltrastarSong)
