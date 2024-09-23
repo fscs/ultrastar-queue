@@ -27,5 +27,5 @@
     <h1>{song.title}</h1>
     <p>{song.artist}</p>
     <p>{song.lyrics}</p>
-    <button type="button" class="btn btn-primary" on:click={() => goto(song.id+"/add")}>Add</button>
+    <button type="button" class="btn btn-primary" on:click={() => goto(`/${song.id}/add`)}>Add</button>
 {/if}

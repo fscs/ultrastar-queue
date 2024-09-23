@@ -21,7 +21,7 @@
             <td>{song.artist}</td>
             <td>{song.audio_duration}</td>
             <td>
-                <button type="button" class="btn btn-primary" on:click={() => goto(song.id+"/add")}>Add</button>
+                <button type="button" class="btn btn-primary" on:click={() => goto(`/${song.id}/add`)}>Add</button>
             </td>
         </tr>
     {/each}
