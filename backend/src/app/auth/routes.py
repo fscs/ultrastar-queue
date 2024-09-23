@@ -8,7 +8,7 @@ from .utils import create_access_token
 from ..dependencies import get_current_user, AsyncSessionDep, CurrentUserDep
 
 auth_router = APIRouter(
-    # prefix="/auth",
+    prefix="/auth",
     tags=["auth"],
     dependencies=[],
     responses={404: {"description": "Not found"}}

@@ -3,12 +3,13 @@ const serverRoute = "http://localhost:8000"
 const adminRoute = "/admin"
 const queueRoute = "/queue"
 const songsRoute = "/songs"
-const authRoute = ""
+const authRoute = "/auth"
 
 
 // QUEUE
 export const getQueueURL = `${serverRoute}${queueRoute}/`
 export const getProcessedEntriesURL = `${serverRoute}${queueRoute}/processed-entries`
+export const getTimeUntilEndOfQueueURL = `${serverRoute}${queueRoute}/get-time-until-end-of-queue`
 export const addEntryToQueueURL = `${serverRoute}${queueRoute}/add-entry`
 
 
@@ -28,6 +29,7 @@ export const getCurrentUserURL = `${serverRoute}${authRoute}/current-user`
 // ADMIN
 export const addEntryToQueueAsAdminURL = `${serverRoute}${adminRoute}/add-entry-as-admin`
 export const removeEntryFromQueueURL = `${serverRoute}${adminRoute}/remove-entry`
+export const moveEntryFromIndexToIndexURL= `${serverRoute}${adminRoute}/move-entry-from-index-to-index`
 export const markEntryAtIndexAsProcessedURL = `${serverRoute}${adminRoute}/mark-entry-at-index-as-processed`
 export const getQueueIsOpenURL = `${serverRoute}${adminRoute}/get-queue-is-open`
 export const getTimeBetweenSameSongURL = `${serverRoute}${adminRoute}/get-time-between-same-song`

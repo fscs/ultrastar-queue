@@ -51,6 +51,15 @@ def remove_entry_from_queue(index: int):
     return {"deleted": removed}
 
 
+@admin_router.put("/move-entry-from-index-to-index")
+def move_entry_from_index_to_index(from_index: int, to_index: int):
+    try:
+        moved = queue_service.move_entry_from_index_to_index(from_index, to_index)
+    except QueueIndexError as err:
+        raise QueueIndexHTTPException(detail=err.msg)
+    return {"moved": moved}
+
+
 @admin_router.delete("/clear-queue")
 def clear_queue():
     queue_service.clear_queue()

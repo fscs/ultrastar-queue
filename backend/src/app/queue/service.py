@@ -86,7 +86,7 @@ class QueueService:
             raise QueueIndexError() from exc
         return removed
 
-    def move_entry_from_to(self, from_index: int, to_index: int):
+    def move_entry_from_index_to_index(self, from_index: int, to_index: int):
         try:
             moved = self._queue.pop(from_index)
         except IndexError as exc:
