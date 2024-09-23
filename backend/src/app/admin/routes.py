@@ -33,15 +33,6 @@ async def add_entry_to_queue_as_admin(session: AsyncSessionDep, requested_song_i
     return entry
 
 
-@admin_router.put("/mark-first-entry-as-processed")
-def mark_first_entry_in_queue_as_processed():
-    try:
-        marked = queue_service.mark_first_entry_as_processed()
-    except QueueEmptyError as err:
-        raise QueueEmptyHTTPException(detail=err.msg)
-    return {"Marked as processed": marked}
-
-
 @admin_router.put("/mark-entry-at-index-as-processed")
 def mark_entry_in_queue_at_index_as_processed(index: int):
     try:

@@ -27,7 +27,6 @@ export const getCurrentUserURL = `${serverRoute}${authRoute}/current-user`
 
 // ADMIN
 export const addEntryToQueueAsAdminURL = `${serverRoute}${adminRoute}/add-entry-as-admin`
-export const markFirstEntryAsProcessedURL = `${serverRoute}${adminRoute}/mark-first-entry-as-processed`
 export const removeEntryFromQueueURL = `${serverRoute}${adminRoute}/remove-entry`
 export const markEntryAtIndexAsProcessedURL = `${serverRoute}${adminRoute}/mark-entry-at-index-as-processed`
 export const getQueueIsOpenURL = `${serverRoute}${adminRoute}/get-queue-is-open`

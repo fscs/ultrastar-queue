@@ -69,16 +69,6 @@ class QueueService:
         self._queue.append(entry)
         return entry
 
-    def mark_first_entry_as_processed(self):
-        try:
-            removed: QueueEntry = self._queue.pop(0)
-        except IndexError as exc:
-            raise QueueEmptyError() from exc
-        self._processed_entries.append(ProcessedQueueEntry(song=removed.song,
-                                                           singer=removed.singer,
-                                                           processed_at=datetime.now()))
-        return removed
-
     def mark_entry_at_index_as_processed(self, index: int):
         try:
             removed: QueueEntry = self._queue.pop(index)
