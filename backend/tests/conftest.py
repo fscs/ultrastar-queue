@@ -9,7 +9,7 @@ from ..src import app
 from ..src.api import db_service
 from backend.src.db.models import UltrastarSong
 from backend.src.api.routes import datetime
-from backend.src.app.queue.schemas import SongInQueue, ProcessedSong
+from backend.src.app.queue.schemas import QueueEntry, ProcessedQueueEntry
 from backend.src.schemas import UltrastarSongBase
 
 
@@ -99,29 +99,29 @@ def song2_api_wrap(song2) -> Dict[str, Any]:
 
 
 @pytest.fixture()
-def song1_in_queue(song1) -> SongInQueue:
-    return SongInQueue(song=song1, singer="Attila")
+def song1_in_queue(song1) -> QueueEntry:
+    return QueueEntry(song=song1, singer="Attila")
 
 
 @pytest.fixture()
-def song2_in_queue(song2) -> SongInQueue:
-    return SongInQueue(song=song2, singer="Matthew, Charles")
+def song2_in_queue(song2) -> QueueEntry:
+    return QueueEntry(song=song2, singer="Matthew, Charles")
 
 
 @pytest.fixture()
-def song3_in_queue(song3) -> SongInQueue:
-    return SongInQueue(song=song3, singer="Mr. Lordi")
+def song3_in_queue(song3) -> QueueEntry:
+    return QueueEntry(song=song3, singer="Mr. Lordi")
 
 
 @pytest.fixture()
-def song_without_audio_duration_in_queue() -> SongInQueue:
-    return SongInQueue(song=UltrastarSong(id=4,
-                                          title="Blood Red Sandman",
-                                          artist="Lordi",
-                                          audio_duration=None,
-                                          lyrics="They called me the Leather Apron, "
+def song_without_audio_duration_in_queue() -> QueueEntry:
+    return QueueEntry(song=UltrastarSong(id=4,
+                                         title="Blood Red Sandman",
+                                         artist="Lordi",
+                                         audio_duration=None,
+                                         lyrics="They called me the Leather Apron, "
                                                  "they called me Smiling Jack"),
-                       singer="singer")
+                      singer="singer")
 
 
 @pytest.fixture()
@@ -141,13 +141,13 @@ def song2_in_queue_api_wrap(song2_api_wrap, song2_in_queue) -> Dict[str, Any]:
 
 
 @pytest.fixture()
-def song1_in_processed_queue(song1, fake_datetime) -> ProcessedSong:
-    return ProcessedSong(song=song1, processed_at=fake_datetime)
+def song1_in_processed_queue(song1, fake_datetime) -> ProcessedQueueEntry:
+    return ProcessedQueueEntry(song=song1, processed_at=fake_datetime)
 
 
 @pytest.fixture()
-def song2_in_processed_queue(song2, fake_datetime) -> ProcessedSong:
-    return ProcessedSong(song=song2, processed_at=fake_datetime)
+def song2_in_processed_queue(song2, fake_datetime) -> ProcessedQueueEntry:
+    return ProcessedQueueEntry(song=song2, processed_at=fake_datetime)
 
 
 """mock_db"""

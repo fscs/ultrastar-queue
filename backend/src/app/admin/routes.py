@@ -7,7 +7,7 @@ from src.app.queue.exceptions import (QueueEmptyError,
                                       QueueEmptyHTTPException,
                                       SongNotInDatabaseHTTPException,
                                       NotAValidNumberHTTPException)
-from src.app.queue.schemas import SongInQueue
+from src.app.queue.schemas import QueueEntry
 from src.app.songs import crud as crud_songs
 
 from ..dependencies import is_admin, AsyncSessionDep
@@ -21,31 +21,40 @@ admin_router = APIRouter(
 )
 
 
-@admin_router.post("/add-song-as-admin", status_code=status.HTTP_201_CREATED, response_model=SongInQueue)
-async def add_song_to_queue_as_admin(session: AsyncSessionDep, requested_song_id: int, singer: str):
-    song_in_db = await crud_songs.get_song_by_id(session, requested_song_id)
-    if not song_in_db:
+@admin_router.post("/add-entry-as-admin", status_code=status.HTTP_201_CREATED, response_model=QueueEntry)
+async def add_entry_to_queue_as_admin(session: AsyncSessionDep, requested_song_id: int, singer: str):
+    song = await crud_songs.get_song_by_id(session, requested_song_id)
+    if not song:
         raise SongNotInDatabaseHTTPException()
 
-    song_in_queue = SongInQueue(song=song_in_db, singer=singer)
-    queue_service.add_song_at_end(song_in_queue)
+    entry = QueueEntry(song=song, singer=singer)
+    queue_service.add_entry_at_end(entry)
 
-    return song_in_queue
+    return entry
 
 
-@admin_router.put("/check-first-song")
-def check_first_song_in_queue():
+@admin_router.put("/mark-first-entry-as-processed")
+def mark_first_entry_in_queue_as_processed():
     try:
-        checked = queue_service.mark_first_song_as_processed()
+        marked = queue_service.mark_first_entry_as_processed()
     except QueueEmptyError as err:
         raise QueueEmptyHTTPException(detail=err.msg)
-    return {"checked": checked}
+    return {"Marked as processed": marked}
 
 
-@admin_router.delete("/remove-song")
-def remove_song_from_queue(index: int):
+@admin_router.put("/mark-entry-at-index-as-processed")
+def mark_entry_in_queue_at_index_as_processed(index: int):
     try:
-        removed = queue_service.remove_song_by_index(index)
+        marked = queue_service.mark_entry_at_index_as_processed(index)
+    except QueueEmptyError as err:
+        raise QueueEmptyHTTPException(detail=err.msg)
+    return {"message": f"Marked as processed: {marked.song.title} by {marked.song.artist}"}
+
+
+@admin_router.delete("/remove-entry")
+def remove_entry_from_queue(index: int):
+    try:
+        removed = queue_service.remove_entry_by_index(index)
     except QueueIndexError as err:
         raise QueueIndexHTTPException(detail=err.msg)
     return {"deleted": removed}
@@ -57,10 +66,10 @@ def clear_queue():
     return {"message": "Queue cleared"}
 
 
-@admin_router.delete("/clear-processed-songs")
-def clear_processed_songs():
-    queue_service.clear_processed_songs()
-    return {"message": "Processed songs cleared"}
+@admin_router.delete("/clear-processed-entries")
+def clear_processed_entries():
+    queue_service.clear_processed_entries()
+    return {"message": "Processed entries cleared"}
 
 
 @admin_router.delete("/clear-queue-service")
@@ -110,15 +119,6 @@ def set_time_between_song_submissions(seconds: int, minutes: int, hours: int):
         raise NotAValidNumberHTTPException(detail="Time cannot be negative")
     queue_service.time_between_song_submissions = time_between_song_submissions
     return {"message": f"Set time between song submissions to {queue_service.time_between_song_submissions}"}
-
-
-@admin_router.put("/check-song-by-index")
-def check_song_in_queue_by_index(index: int):
-    try:
-        checked = queue_service.mark_song_at_index_as_processed(index)
-    except QueueEmptyError as err:
-        raise QueueEmptyHTTPException(detail=err.msg)
-    return {"message": f"checked: {checked.song.title} by {checked.song.artist}"}
 
 
 @admin_router.get("/get-queue-is-open")

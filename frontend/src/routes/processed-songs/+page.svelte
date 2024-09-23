@@ -1,14 +1,14 @@
 <script>
-    import {ProcessedSongsStore} from "../../stores.js";
+    import {ProcessedQueueEntriesStore} from "../../stores.js";
     import {onMount} from "svelte";
     import SongTable from "$lib/SongTable.svelte";
-    import {getProcessedSongsURL} from "$lib/backend_routes.js";
+    import {getProcessedEntriesURL} from "$lib/backend_routes.js";
 
     onMount(async () => {
-        const endpoint = new URL(getProcessedSongsURL)
+        const endpoint = new URL(getProcessedEntriesURL)
         const response = await fetch(endpoint)
-        const processedSongs = await response.json()
-        ProcessedSongsStore.set(processedSongs)
+        const entries = await response.json()
+        ProcessedQueueEntriesStore.set(entries)
     });
 
     const intToDateStr = (int) => {
@@ -27,16 +27,18 @@
         <th scope="col">Title</th>
         <th scope="col">Artist</th>
         <th scope="col">Duration</th>
+        <th scope="col">Singer</th>
         <th scope="col">Sung at</th>
     </tr>
     </thead>
     <tbody>
-    {#each $ProcessedSongsStore as processedSong}
+    {#each $ProcessedQueueEntriesStore as entry}
         <tr>
-            <th><a href="{processedSong.song.id}">{processedSong.song.title}</a></th>
-            <th>{processedSong.song.artist}</th>
-            <th>{intToDateStr(processedSong.song.audio_duration)}</th>
-            <th>{processedSong.processed_at}</th>
+            <th><a href="{entry.song.id}">{entry.song.title}</a></th>
+            <th>{entry.song.artist}</th>
+            <th>{intToDateStr(entry.song.audio_duration)}</th>
+            <th>{entry.singer}</th>
+            <th>{entry.processed_at}</th>
         </tr>
     {/each}
     </tbody>

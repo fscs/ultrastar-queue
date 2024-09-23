@@ -4,7 +4,7 @@
 
     import SongTable from "$lib/SongTable.svelte";
     import {goto} from "$app/navigation";
-    import {checkSongInQueueByIndexURL, getQueueURL} from "$lib/backend_routes.js";
+    import {markEntryAtIndexAsProcessedURL, getQueueURL} from "$lib/backend_routes.js";
 
     $: isAdmin = $User === null ? false : $User.is_admin
 
@@ -16,7 +16,7 @@
     });
 
     const handleCheck = (index) => {
-        const endpoint = new URL(checkSongInQueueByIndexURL)
+        const endpoint = new URL(markEntryAtIndexAsProcessedURL)
         endpoint.searchParams.set("index", index)
         fetch(endpoint, {method: "PUT", credentials: "include"})
             .then(response => {
@@ -58,12 +58,12 @@
     </tr>
     </thead>
     <tbody>
-    {#each $QueueStore as song_in_queue, index}
+    {#each $QueueStore as entry, index}
         <tr>
-            <th><a href="{song_in_queue.song.id}">{song_in_queue.song.title}</a></th>
-            <th>{song_in_queue.song.artist}</th>
-            <th>{intToDateStr(song_in_queue.song.audio_duration)}</th>
-            <th>{song_in_queue.singer}</th>
+            <th><a href="{entry.song.id}">{entry.song.title}</a></th>
+            <th>{entry.song.artist}</th>
+            <th>{intToDateStr(entry.song.audio_duration)}</th>
+            <th>{entry.singer}</th>
             {#if isAdmin}
                 <th>
                     <button type="button" class="btn btn-primary" on:click={() => handleCheck(index)}>Check</button>

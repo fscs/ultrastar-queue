@@ -5,7 +5,7 @@ export const QueueStore = writable([])
 
 export const SongStore = writable([])
 
-export const ProcessedSongsStore = writable([])
+export const ProcessedQueueEntriesStore = writable([])
 
 export const ErrorAlertStore = writable([])
 

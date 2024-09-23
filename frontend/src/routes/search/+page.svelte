@@ -41,7 +41,7 @@
 <form class="d-flex" on:submit={handleSubmit} role="search">
     <div class="form-floating mb-3">
         <input bind:value={title} class="form-control" id="title" placeholder="Title" type="text">
-        <label for="title">Song Title</label>
+        <label for="title">Title</label>
     </div>
     <div class="form-floating mb-3">
         <input bind:value={artist} class="form-control" id="artist" placeholder="Artist" type="text">

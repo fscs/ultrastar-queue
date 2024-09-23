@@ -33,7 +33,7 @@ def test_get_empty_queue(client):
 
 def test_get_queue_with_one_song(client, song1_in_queue, song1_in_queue_api_wrap):
     clean_queue_test_setup(client)
-    queue_service.add_song_at_end(song1_in_queue)
+    queue_service.add_entry_at_end(song1_in_queue)
 
     response = client.get("/queue/")
 
@@ -49,8 +49,8 @@ def test_get_queue_with_two_songs(client,
                                   song1_in_queue_api_wrap,
                                   song2_in_queue_api_wrap):
     clean_queue_test_setup(client)
-    queue_controller.add_song_at_end(song1_in_queue)
-    queue_controller.add_song_at_end(song2_in_queue)
+    queue_controller.add_entry_at_end(song1_in_queue)
+    queue_controller.add_entry_at_end(song2_in_queue)
 
     response = client.get("/queue/")
 
@@ -203,7 +203,7 @@ def test_add_song_to_queue_with_song_already_in_queue(client,
     clean_queue_test_setup(client)
     app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = song1
-    queue_controller.add_song_at_end(song1_in_queue)
+    queue_controller.add_entry_at_end(song1_in_queue)
 
     response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 
@@ -226,9 +226,9 @@ def test_add_song_to_queue_with_song_aready_sung_max_times(client,
     app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = song1
     mock_queue_controller_datetime.now.return_value = fake_datetime
-    for i in range(0, queue_controller.max_times_song_can_be_sung + 1):
-        queue_controller.add_song_at_end(song1_in_queue)
-        queue_controller.mark_first_song_as_processed()
+    for _ in range(0, queue_controller.max_times_song_can_be_sung + 1):
+        queue_controller.add_entry_at_end(song1_in_queue)
+        queue_controller.mark_first_entry_as_processed()
     mock_queue_controller_datetime.now.return_value = fake_datetime + timedelta(days=1)
 
     response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
@@ -253,8 +253,8 @@ def test_add_song_to_queue_with_song_sung_recently(client,
     app.dependency_overrides[is_admin] = overrides_is_admin_as_false
     mock_db_query_get_song_by_id.return_value = song1
     mock_queue_controller_datetime.now.return_value = fake_datetime
-    queue_controller.add_song_at_end(song1_in_queue)
-    queue_controller.mark_first_song_as_processed()
+    queue_controller.add_entry_at_end(song1_in_queue)
+    queue_controller.mark_first_entry_as_processed()
 
     response = client.post("/queue/add-song", json=song1_api_wrap, params={"singer": song1_in_queue.singer})
 

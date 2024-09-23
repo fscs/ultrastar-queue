@@ -2,7 +2,7 @@
     import {ErrorAlertStore, QueueStore, SuccessAlertStore, User} from "../../../stores.js";
     import {goto} from "$app/navigation";
     import {onMount} from "svelte";
-    import {addSongToQueueAsAdminURL, addSongToQueueURL} from "$lib/backend_routes.js";
+    import {addEntryToQueueAsAdminURL, addEntryToQueueURL} from "$lib/backend_routes.js";
 
     export let singer = "";
     export let data;
@@ -17,7 +17,7 @@
 
     const handleSubmit = () => {
 
-        const endpoint = new URL(addSongToQueueURL)
+        const endpoint = new URL(addEntryToQueueURL)
         endpoint.searchParams.set("requested_song_id", data.id)
         endpoint.searchParams.set("singer", singer)
         fetch(endpoint, {
@@ -46,7 +46,7 @@
 
     const handleSubmitAsAdmin = () => {
 
-        const endpoint = new URL(addSongToQueueAsAdminURL)
+        const endpoint = new URL(addEntryToQueueAsAdminURL)
         endpoint.searchParams.set("requested_song_id", data.id)
         endpoint.searchParams.set("singer", singer)
         fetch(endpoint, {

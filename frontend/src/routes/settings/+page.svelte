@@ -3,7 +3,7 @@
     import {deleteSettingValue, getSettingValue, setSettingValue} from "$lib/settings_funcs.js";
     import {User} from "../../stores.js";
     import {
-        clearProcessedSongsURL,
+        clearProcessedEntriesURL,
         clearQueueURL,
         getQueueIsOpenURL,
         getMaxTimesSongCanBeSungURL,
@@ -16,7 +16,7 @@
     } from "$lib/backend_routes.js";
 
     let popupClearQueue = false;
-    let popupClearProcessedSongs = false;
+    let popupClearProcessedEntries = false;
 
     $: isAdmin = $User === null ? false : $User.is_admin
     export let queueIsOpen;
@@ -84,8 +84,8 @@
         deleteSettingValue(endpoint)
     }
 
-    const clearProcessedSongs = () => {
-        const endpoint = new URL(clearProcessedSongsURL)
+    const clearProcessedEntries = () => {
+        const endpoint = new URL(clearProcessedEntriesURL)
         deleteSettingValue(endpoint)
     }
 
@@ -140,12 +140,12 @@
     </div>
 
     <div>
-        <button class="btn btn-primary" type="submit" on:click={() => popupClearProcessedSongs=true}>Clear
-            ProcessedSongs
+        <button class="btn btn-primary" type="submit" on:click={() => popupClearProcessedEntries=true}>Clear
+            Processed Queue Entries
         </button>
     </div>
 
-    {#if popupClearQueue || popupClearProcessedSongs}
+    {#if popupClearQueue || popupClearProcessedEntries}
         <div class="modal modal-sheet position-flexible d-block bg-body-secondary p-4 py-md-5" id="modalChoice"
              role="dialog"
              tabindex="-1">
@@ -154,8 +154,8 @@
                     <div class="modal-body p-4 text-center">
                         {#if popupClearQueue}
                             <h5 class="mb-0">Do you really want to clear the queue?</h5>
-                        {:else if popupClearProcessedSongs}
-                            <h5 class="mb-0">Do you really want to clear all the processed songs?</h5>
+                        {:else if popupClearProcessedEntries}
+                            <h5 class="mb-0">Do you really want to clear all the processed queue entries?</h5>
                         {/if}
                     </div>
                     <div class="modal-footer flex-nowrap p-0">
@@ -167,14 +167,14 @@
                                     data-bs-dismiss="modal"
                                     type="button" on:click={() => popupClearQueue=false}>No thanks
                             </button>
-                        {:else if popupClearProcessedSongs}
+                        {:else if popupClearProcessedEntries}
                             <button class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0 border-end"
                                     type="button"
-                                    on:click={() => {popupClearProcessedSongs=false; clearProcessedSongs();}}>
+                                    on:click={() => {popupClearProcessedEntries=false; clearProcessedEntries();}}>
                                 <strong>Yes, do it!</strong></button>
                             <button class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0"
                                     data-bs-dismiss="modal"
-                                    type="button" on:click={() => popupClearProcessedSongs=false}>No thanks
+                                    type="button" on:click={() => popupClearProcessedEntries=false}>No thanks
                             </button>
                         {/if}
                     </div>

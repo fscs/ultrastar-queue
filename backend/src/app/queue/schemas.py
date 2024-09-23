@@ -5,11 +5,10 @@ from pydantic import BaseModel
 from ..songs.models import UltrastarSong
 
 
-class SongInQueue(BaseModel):
+class QueueEntry(BaseModel):
     song: UltrastarSong
     singer: str
 
 
-class ProcessedSong(BaseModel):
-    song: UltrastarSong
+class ProcessedQueueEntry(QueueEntry):
     processed_at: datetime
