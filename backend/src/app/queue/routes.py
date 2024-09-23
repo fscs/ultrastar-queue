@@ -2,12 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Cookie, Response, status
 
-from .exceptions import (QueueClosedHTTPException,
-                         SongAlreadySungHTTPException,
-                         SongRecentlySungHTTPException,
-                         CantSubmitSongHTTPException,
-                         SongNotInDatabaseHTTPException,
-                         SongAlreadyInQueueHTTPException)
+from .exceptions import CantAddSongHTTPException
 from .schemas import QueueEntry
 from ..dependencies import AsyncSessionDep
 from ..main import queue_service
@@ -45,29 +40,34 @@ async def add_entry_to_queue(
         last_added: datetime | None = Cookie(None)
 ):
     if not queue_service.queue_is_open:
-        raise QueueClosedHTTPException()
+        raise CantAddSongHTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                       detail="Queue is closed. Can't add any more songs.")
 
     if last_added is not None:
         if last_added > (datetime.now() - queue_service.time_between_song_submissions):
-            raise CantSubmitSongHTTPException(
-                detail=f"Please wait {queue_service.time_between_song_submissions} before submitting a new song"
-            )
+            raise CantAddSongHTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                           detail=f"Please wait {queue_service.time_between_song_submissions} before "
+                                                  f"submitting a new song"
+                                           )
 
     song = await get_song_by_id(session, requested_song_id)
     if not song:
-        raise SongNotInDatabaseHTTPException()
+        raise CantAddSongHTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                       detail="Requested song cannot be found in the database.")
 
     if queue_service.is_song_in_queue(song):
-        raise SongAlreadyInQueueHTTPException(detail=f"Song {song.title} by {song.artist} is "
-                                                     f"already in queue")
+        raise CantAddSongHTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                       detail=f"Song {song.title} by {song.artist} is already in queue")
 
     if queue_service.has_song_been_sung_max_times(song):
-        raise SongAlreadySungHTTPException(detail=f"Song {song.title} by {song.artist} has "
-                                                  f"already been sung a few times today. Please choose another one.")
+        raise CantAddSongHTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                       detail=f"Song {song.title} by {song.artist} has already been sung a few times "
+                                              f"today. Please choose another one.")
 
     if not queue_service.will_time_between_songs_have_passed_until_end_of_queue(song):
-        raise SongRecentlySungHTTPException(detail=f"Song {song.title} by {song.artist} has "
-                                                   "been sung recently. Please choose another one.")
+        raise CantAddSongHTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                       detail=f"Song {song.title} by {song.artist} has been sung recently. "
+                                              f"Please choose another one.")
 
     queue_entry = QueueEntry(song=song, singer=singer)
 

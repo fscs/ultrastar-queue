@@ -1,143 +1,17 @@
-from typing import Dict
-
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
 
-class QueueEmptyError(Exception):
-    _default_msg: str = "Queue is empty"
-
-    def __init__(self, msg: str = _default_msg) -> None:
-        self.msg: str = msg
-
-
-class QueueIndexError(Exception):
-    _default_msg: str = "Requested index is out of bounds"
-
-    def __init__(self, msg: str = _default_msg) -> None:
-        self.msg: str = msg
-
-
-class QueueClosedHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_403_FORBIDDEN
-    _default_detail: str = "Queue is closed. Can't add any more songs."
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
-
-
-class QueueEmptyHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_404_NOT_FOUND
-    _default_detail: str = "Queue is empty"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
+class NotAValidNumberError(Exception):
+    pass
 
 
 class QueueIndexHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_404_NOT_FOUND
-    _default_detail: str = "Requested index is out of bounds"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
+    pass
 
 
-class SongNotInDatabaseHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_404_NOT_FOUND
-    _default_detail: str = "Song not in db"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
-
-
-class CantSubmitSongHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = "Please wait a while before submitting a new song"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
-
-
-class SongAlreadyInQueueHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = "Requested Song is already in queue"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
-
-
-class SongAlreadySungHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = "Requested Song has already been sung today"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
-
-
-class SongRecentlySungHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = "Requested Song has been sung recently"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
+class CantAddSongHTTPException(HTTPException):
+    pass
 
 
 class NotAValidNumberHTTPException(HTTPException):
-    _default_status_code: int = status.HTTP_400_BAD_REQUEST
-    _default_detail: str = "Not a valid number"
-
-    def __init__(self,
-                 status_code: int = _default_status_code,
-                 detail: str = _default_detail,
-                 headers: Dict[str, str] = None
-                 ) -> None:
-        self.status_code: int = status_code
-        self.detail: str = detail
-        self.headers: Dict[str, str] = headers
+    pass

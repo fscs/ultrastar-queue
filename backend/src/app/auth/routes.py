@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, Header, Response
+from fastapi import Depends, APIRouter, Header, Response, status
 
 from .crud import authenticate_user
 from .dependencies import OAuth2PasswordRequestFormDep
@@ -22,7 +22,9 @@ async def token(session: AsyncSessionDep,
                 ) -> Token:
     user = await authenticate_user(session, form_data.username, form_data.password)
     if not user:
-        raise AuthenticationHTTPException()
+        raise AuthenticationHTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                          detail="Incorrect username or password",
+                                          headers={"WWW-Authenticate": "Bearer"})
     access_token = create_access_token(data={"sub": user.username})
     return Token(access_token=access_token, token_type="bearer")
 
@@ -35,7 +37,9 @@ async def login(session: AsyncSessionDep,
                 ):
     user = await authenticate_user(session, form_data.username, form_data.password)
     if not user:
-        raise AuthenticationHTTPException()
+        raise AuthenticationHTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                          detail="Incorrect username or password",
+                                          headers={"WWW-Authenticate": "Bearer"})
     access_token = create_access_token(data={"sub": user.username})
     response.set_cookie("access_token", access_token, httponly=True, max_age=60 * 24)
     return {"user": True, "username": user.username, "is_admin": user.is_admin, "message": "Successfully logged in!"}

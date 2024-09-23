@@ -2,7 +2,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from .config import QueueBaseSettings
-from .exceptions import QueueEmptyError, QueueIndexError
+from .exceptions import NotAValidNumberError
 from .schemas import QueueEntry, ProcessedQueueEntry
 from ..songs.models import UltrastarSong
 
@@ -32,7 +32,7 @@ class QueueService:
     @time_between_same_song.setter
     def time_between_same_song(self, interval: timedelta) -> None:
         if interval.total_seconds() < 0:
-            raise ValueError("Time between songs cannot be negative")
+            raise NotAValidNumberError("Time between songs cannot be negative")
         self._time_between_same_song = interval
 
     @property
@@ -42,9 +42,9 @@ class QueueService:
     @max_times_song_can_be_sung.setter
     def max_times_song_can_be_sung(self, value: int) -> None:
         if value == 0:
-            raise ValueError("Number cannot be zero")
+            raise NotAValidNumberError("Number cannot be zero")
         elif value < 0:
-            raise ValueError("Number cannot be negative")
+            raise NotAValidNumberError("Number cannot be negative")
         self._max_times_song_can_be_sung = value
 
     @property
@@ -54,7 +54,7 @@ class QueueService:
     @time_between_song_submissions.setter
     def time_between_song_submissions(self, interval: timedelta) -> None:
         if interval.total_seconds() < 0:
-            raise ValueError("Time between song submissions cannot be negative")
+            raise NotAValidNumberError("Time between song submissions cannot be negative")
         self._time_between_song_submissions = interval
 
     @property
@@ -70,27 +70,18 @@ class QueueService:
         return entry
 
     def mark_entry_at_index_as_processed(self, index: int):
-        try:
-            removed: QueueEntry = self._queue.pop(index)
-        except IndexError as exc:
-            raise QueueEmptyError() from exc
+        removed: QueueEntry = self._queue.pop(index)
         self._processed_entries.append(ProcessedQueueEntry(song=removed.song,
                                                            singer=removed.singer,
                                                            processed_at=datetime.now().replace(microsecond=0)))
         return removed
 
     def remove_entry_by_index(self, index: int):
-        try:
-            removed = self._queue.pop(index)
-        except IndexError as exc:
-            raise QueueIndexError() from exc
+        removed = self._queue.pop(index)
         return removed
 
     def move_entry_from_index_to_index(self, from_index: int, to_index: int):
-        try:
-            moved = self._queue.pop(from_index)
-        except IndexError as exc:
-            raise QueueIndexError() from exc
+        moved = self._queue.pop(from_index)
         self._queue.insert(to_index, moved)
 
     def clear_queue(self) -> None:

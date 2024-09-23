@@ -1,9 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 
 from . import crud
 from .exceptions import (EmptySonglistHTTPException,
-                         NoMatchingSongHTTPException,
-                         SongIdNotMatchingHTTPException)
+                         NoMatchingSongHTTPException)
 from .models import UltrastarSong
 from ..dependencies import AsyncSessionDep
 
@@ -19,7 +18,7 @@ song_router = APIRouter(
 async def get_songs(session: AsyncSessionDep) -> list[UltrastarSong]:
     songs = await crud.get_songs(session)
     if not songs:
-        raise EmptySonglistHTTPException()
+        raise EmptySonglistHTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Songlist is empty")
     return songs
 
 
@@ -31,7 +30,8 @@ async def get_songs_by_criteria(
 ) -> list[UltrastarSong]:
     songs = await crud.get_songs_by_criteria(session, title, artist)
     if not songs:
-        raise NoMatchingSongHTTPException()
+        raise NoMatchingSongHTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                          detail="Could not find songs with provided criteria")
     return songs
 
 
@@ -42,5 +42,6 @@ async def get_song_by_id(
 ) -> UltrastarSong:
     song = await crud.get_song_by_id(session, song_id)
     if song is None:
-        raise SongIdNotMatchingHTTPException()
+        raise NoMatchingSongHTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                          detail="Requested song id cannot be found in database")
     return song

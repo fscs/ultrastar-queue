@@ -1,7 +1,7 @@
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, Cookie
+from fastapi import Depends, Cookie, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import sessionmaker
@@ -37,13 +37,17 @@ async def get_current_user(  # token: TokenDep,
         payload = jwt.decode(token, settings.JWT_SIGNING_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
-            raise CredentialsHTTPException()
+            raise CredentialsHTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                           detail="Could not validate credentials", headers={"WWW-Authenticate":
+                                                                                             "Bearer"})
         token_data = TokenData(username=username)
     except InvalidTokenError:
-        raise CredentialsHTTPException()
+        raise CredentialsHTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                       detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     user = await get_user_by_username(session, username=token_data.username)
     if user is None:
-        raise CredentialsHTTPException()
+        raise CredentialsHTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                       detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     return user
 
 
@@ -52,7 +56,7 @@ CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 async def is_admin(user: CurrentUserDep) -> User:
     if not user.is_admin:
-        raise NotEnoughPrivilegesHTTPException()
+        raise NotEnoughPrivilegesHTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not enough privileges")
     return user
 
 

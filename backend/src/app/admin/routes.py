@@ -1,12 +1,10 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, status, Depends
-from src.app.queue.exceptions import (QueueEmptyError,
-                                      QueueIndexError,
-                                      QueueIndexHTTPException,
-                                      QueueEmptyHTTPException,
-                                      SongNotInDatabaseHTTPException,
-                                      NotAValidNumberHTTPException)
+from src.app.queue.exceptions import (QueueIndexHTTPException,
+                                      NotAValidNumberHTTPException,
+                                      CantAddSongHTTPException,
+                                      NotAValidNumberError)
 from src.app.queue.schemas import QueueEntry
 from src.app.songs import crud as crud_songs
 
@@ -25,7 +23,8 @@ admin_router = APIRouter(
 async def add_entry_to_queue_as_admin(session: AsyncSessionDep, requested_song_id: int, singer: str):
     song = await crud_songs.get_song_by_id(session, requested_song_id)
     if not song:
-        raise SongNotInDatabaseHTTPException()
+        raise CantAddSongHTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                       detail="Requested song cannot be found in the database.")
 
     entry = QueueEntry(song=song, singer=singer)
     queue_service.add_entry_at_end(entry)
@@ -37,8 +36,8 @@ async def add_entry_to_queue_as_admin(session: AsyncSessionDep, requested_song_i
 def mark_entry_in_queue_at_index_as_processed(index: int):
     try:
         marked = queue_service.mark_entry_at_index_as_processed(index)
-    except QueueEmptyError as err:
-        raise QueueEmptyHTTPException(detail=err.msg)
+    except IndexError:
+        raise QueueIndexHTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Requested index is out of bounds.")
     return {"message": f"Marked as processed: {marked.song.title} by {marked.song.artist}"}
 
 
@@ -46,8 +45,8 @@ def mark_entry_in_queue_at_index_as_processed(index: int):
 def remove_entry_from_queue(index: int):
     try:
         removed = queue_service.remove_entry_by_index(index)
-    except QueueIndexError as err:
-        raise QueueIndexHTTPException(detail=err.msg)
+    except IndexError:
+        raise QueueIndexHTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Requested index is out of bounds.")
     return {"deleted": removed}
 
 
@@ -55,8 +54,9 @@ def remove_entry_from_queue(index: int):
 def move_entry_from_index_to_index(from_index: int, to_index: int):
     try:
         moved = queue_service.move_entry_from_index_to_index(from_index, to_index)
-    except QueueIndexError as err:
-        raise QueueIndexHTTPException(detail=err.msg)
+    except IndexError:
+        raise QueueIndexHTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                      detail="At least one of the requested indexes is out of bounds.")
     return {"moved": moved}
 
 
@@ -87,8 +87,8 @@ def get_time_between_same_song() -> int:
 def set_time_between_same_song(hours: int, minutes: int, seconds: int):
     try:
         queue_service.time_between_same_song = timedelta(hours=hours, minutes=minutes, seconds=seconds)
-    except ValueError as err:
-        raise NotAValidNumberHTTPException(detail=err.args[0])
+    except NotAValidNumberError as err:
+        raise NotAValidNumberHTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=err.args[0])
     return {"message": f"Set time to {timedelta(hours=hours, minutes=minutes, seconds=seconds)} "
                        f"between submitting the same song"}
 
@@ -102,8 +102,8 @@ def get_max_times_song_can_be_sung() -> int:
 def set_max_times_song_can_be_sung(max_times: int):
     try:
         queue_service.max_times_song_can_be_sung = max_times
-    except ValueError as err:
-        raise NotAValidNumberHTTPException(detail=err.args[0])
+    except NotAValidNumberError as err:
+        raise NotAValidNumberHTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=err.args[0])
     return {"message": f"Set max times the same song can be sung to {max_times}"}
 
 
@@ -115,9 +115,10 @@ def get_time_between_song_submissions() -> int:
 @admin_router.put("/set-time-between-song-submissions")
 def set_time_between_song_submissions(seconds: int, minutes: int, hours: int):
     time_between_song_submissions = timedelta(seconds=seconds, minutes=minutes, hours=hours)
-    if time_between_song_submissions.total_seconds() < 0:
-        raise NotAValidNumberHTTPException(detail="Time cannot be negative")
-    queue_service.time_between_song_submissions = time_between_song_submissions
+    try:
+        queue_service.time_between_song_submissions = time_between_song_submissions
+    except NotAValidNumberError as err:
+        raise NotAValidNumberHTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=err.args[0])
     return {"message": f"Set time between song submissions to {queue_service.time_between_song_submissions}"}
 
 
