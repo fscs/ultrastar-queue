@@ -47,17 +47,17 @@ def remove_entry_from_queue(index: int):
         removed = queue_service.remove_entry_by_index(index)
     except IndexError:
         raise QueueIndexHTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Requested index is out of bounds.")
-    return {"deleted": removed}
+    return {"message": f"Deleted: {removed.song.title} by {removed.song.artist}"}
 
 
-@admin_router.put("/move-entry-from-index-to-index")
+@admin_router.patch("/move-entry-from-index-to-index")
 def move_entry_from_index_to_index(from_index: int, to_index: int):
     try:
         moved = queue_service.move_entry_from_index_to_index(from_index, to_index)
     except IndexError:
         raise QueueIndexHTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                      detail="At least one of the requested indexes is out of bounds.")
-    return {"moved": moved}
+                                      detail="The from_index is out of bounds.")
+    return {"message": f"Moved: {moved.song.title} by {moved.song.artist}"}
 
 
 @admin_router.delete("/clear-queue")
@@ -113,7 +113,7 @@ def get_time_between_song_submissions() -> int:
 
 
 @admin_router.put("/set-time-between-song-submissions")
-def set_time_between_song_submissions(seconds: int, minutes: int, hours: int):
+def set_time_between_song_submissions(hours: int, minutes: int, seconds: int):
     time_between_song_submissions = timedelta(seconds=seconds, minutes=minutes, hours=hours)
     try:
         queue_service.time_between_song_submissions = time_between_song_submissions

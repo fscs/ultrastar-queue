@@ -7,7 +7,7 @@ from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from .auth.crud import get_user_by_username
+from .auth import crud as crud_auth
 from .auth.exceptions import CredentialsHTTPException, NotEnoughPrivilegesHTTPException
 from .auth.models import User
 from .auth.schemas import TokenData
@@ -44,7 +44,7 @@ async def get_current_user(  # token: TokenDep,
     except InvalidTokenError:
         raise CredentialsHTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                        detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
-    user = await get_user_by_username(session, username=token_data.username)
+    user = await crud_auth.get_user_by_username(session, username=token_data.username)
     if user is None:
         raise CredentialsHTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                        detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})

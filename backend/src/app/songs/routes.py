@@ -22,7 +22,7 @@ async def get_songs(session: AsyncSessionDep) -> list[UltrastarSong]:
     return songs
 
 
-@song_router.get(path="/get-songs-by-criteria")
+@song_router.get("/get-songs-by-criteria")
 async def get_songs_by_criteria(
         session: AsyncSessionDep,
         title: str | None = None,

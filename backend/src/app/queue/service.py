@@ -1,5 +1,4 @@
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from .config import QueueBaseSettings
 from .exceptions import NotAValidNumberError
@@ -80,9 +79,12 @@ class QueueService:
         removed = self._queue.pop(index)
         return removed
 
-    def move_entry_from_index_to_index(self, from_index: int, to_index: int):
+    def move_entry_from_index_to_index(self, from_index: int, to_index: int) -> QueueEntry:
+        if from_index < to_index:
+            to_index = to_index - 1
         moved = self._queue.pop(from_index)
         self._queue.insert(to_index, moved)
+        return moved
 
     def clear_queue(self) -> None:
         self._queue.clear()

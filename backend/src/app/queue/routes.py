@@ -6,7 +6,7 @@ from .exceptions import CantAddSongHTTPException
 from .schemas import QueueEntry
 from ..dependencies import AsyncSessionDep
 from ..main import queue_service
-from ..songs.crud import get_song_by_id
+from ..songs import crud
 
 queue_router = APIRouter(
     prefix="/queue",
@@ -50,7 +50,7 @@ async def add_entry_to_queue(
                                                   f"submitting a new song"
                                            )
 
-    song = await get_song_by_id(session, requested_song_id)
+    song = await crud.get_song_by_id(session, requested_song_id)
     if not song:
         raise CantAddSongHTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                        detail="Requested song cannot be found in the database.")
