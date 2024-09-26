@@ -64,18 +64,18 @@ class QueueService:
     def queue_is_open(self, value: bool) -> None:
         self._queue_is_open = value
 
-    def add_entry_at_end(self, entry: QueueEntry):
+    def add_entry_at_end(self, entry: QueueEntry) -> QueueEntry:
         self._queue.append(entry)
         return entry
 
-    def mark_entry_at_index_as_processed(self, index: int):
+    def mark_entry_at_index_as_processed(self, index: int) -> QueueEntry:
         removed: QueueEntry = self._queue.pop(index)
         self._processed_entries.append(ProcessedQueueEntry(song=removed.song,
                                                            singer=removed.singer,
                                                            processed_at=datetime.now().replace(microsecond=0)))
         return removed
 
-    def remove_entry_by_index(self, index: int):
+    def remove_entry_by_index(self, index: int) -> QueueEntry:
         removed = self._queue.pop(index)
         return removed
 

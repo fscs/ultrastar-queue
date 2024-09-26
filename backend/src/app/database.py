@@ -3,7 +3,7 @@ from sqlmodel import SQLModel
 
 from .config import settings
 
-async_engine = create_async_engine(settings.DATABASE_URL, echo=True)
+async_engine = create_async_engine(settings.DATABASE_URL)
 
 
 async def init_db() -> None:

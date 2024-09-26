@@ -18,7 +18,7 @@ from ..ultrastar_file_parser import UltrastarFileParser
 from ..ultrastar_file_parser.exceptions import UltrastarMatchingError
 
 
-async def populate_database():
+async def populate_database() -> None:
     path = settings.PATH_TO_ULTRASTAR_SONG_DIR
     file_paths = UltrastarFileParser.get_song_file_paths(path)
     for file_path in file_paths:
@@ -34,33 +34,24 @@ async def populate_database():
             db_logger.error(e.args[0])
         song_base: UltrastarSongBase = UltrastarSongBase(**song_converter.model_dump())
 
-        # https://stackoverflow.com/questions/75150942/how-to-get-a-session-from-async-session-generator-fastapi-sqlalchemy
-        generator = get_async_session()
-        session: AsyncSession = (await anext(generator))
-        song = await add_song_if_not_in_db(session, UltrastarSong(**song_base.dict()))
-        try:
-            await anext(generator)
-        except StopAsyncIteration:
-            pass
+        song = None
+        # https://stackoverflow.com/questions/56161595/how-to-use-async-for-in-python
+        async for session in get_async_session():
+            song = await add_song_if_not_in_db(session, UltrastarSong(**song_base.dict()))
         if song:
             db_logger.info(f"{song.title} by {song.artist} added to db")
         else:
             db_logger.info(f"{song_base.title} by {song_base.artist} already in db")
 
 
-async def add_users_to_db():
+async def add_users_to_db() -> None:
     from src.app.auth.utils import get_password_hash
 
     hashed_password = get_password_hash(settings.ADMIN_PASSWORD)
-    generator = get_async_session()
-    session: AsyncSession = (await anext(generator))
     user1 = User(username=settings.ADMIN_USERNAME, is_admin=True, hashed_password=hashed_password)
-    if not await get_user_by_username(session, user1.username):
-        await add_user(session, user1)
-    try:
-        await anext(generator)
-    except StopAsyncIteration:
-        pass
+    async for session in get_async_session():
+        if not await get_user_by_username(session, user1.username):
+            await add_user(session, user1)
 
 
 @asynccontextmanager
@@ -76,7 +67,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-def create_app():
+def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan, docs_url=settings.SWAGGER_UI_URL, redoc_url=settings.REDOC_URL)
 
     from src.app.auth.routes import auth_router
