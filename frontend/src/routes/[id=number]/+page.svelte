@@ -3,6 +3,7 @@
     import {onMount} from "svelte";
     import {goto} from "$app/navigation";
     import {getSongByIdURL} from "$lib/backend_routes.js";
+    import {intToDateStr} from "$lib/custom_utils.js";
 
     export let data;
     let song;
@@ -26,6 +27,13 @@
 {#if song}
     <h1>{song.title}</h1>
     <p>{song.artist}</p>
+    <p>
+        {#if song.audio_duration}
+            <td>{intToDateStr(song.audio_duration)}</td>
+        {:else}
+            <td>Audio duration not provided</td>
+        {/if}
+    </p>
     <p>{song.lyrics}</p>
     <button type="button" class="btn btn-primary" on:click={() => goto(`/${song.id}/add`)}>Add</button>
 {/if}

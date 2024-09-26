@@ -3,6 +3,7 @@
     import {onMount} from "svelte";
     import SongTable from "$lib/SongTable.svelte";
     import {getProcessedEntriesURL} from "$lib/backend_routes.js";
+    import {intToDateStr} from "$lib/custom_utils.js";
 
     onMount(async () => {
         const endpoint = new URL(getProcessedEntriesURL)
@@ -11,12 +12,6 @@
         ProcessedQueueEntriesStore.set(entries)
     });
 
-    const intToDateStr = (int) => {
-        let date = new Date(0, 0, 0, 0, 0, int)
-        let min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
-        let sec = date.getSeconds() < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`
-        return `${date.getHours()}:${min}:${sec}`
-    }
 </script>
 
 <SongTable>
@@ -36,7 +31,11 @@
         <tr>
             <th><a href="{entry.song.id}">{entry.song.title}</a></th>
             <th>{entry.song.artist}</th>
-            <th>{intToDateStr(entry.song.audio_duration)}</th>
+            {#if entry.song.audio_duration}
+                <td>{intToDateStr(entry.song.audio_duration)}</td>
+            {:else}
+                <td>Not provided</td>
+            {/if}
             <th>{entry.singer}</th>
             <th>{entry.processed_at}</th>
         </tr>

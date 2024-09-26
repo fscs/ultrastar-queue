@@ -32,6 +32,8 @@ async def populate_database() -> None:
             song_converter.set_audio_duration(os.path.dirname(file_path))
         except RuntimeError as e:
             db_logger.error(e.args[0])
+        except FileNotFoundError as e:
+            db_logger.error(e.args[0])
         song_base: UltrastarSongBase = UltrastarSongBase(**song_converter.model_dump())
 
         song = None
