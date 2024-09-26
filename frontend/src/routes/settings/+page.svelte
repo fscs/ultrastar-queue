@@ -141,7 +141,7 @@
 
     <div>
         <button class="btn btn-primary" type="submit" on:click={() => popupClearProcessedEntries=true}>Clear
-            Processed Queue Entries
+            Processed Songs
         </button>
     </div>
 
@@ -155,7 +155,7 @@
                         {#if popupClearQueue}
                             <h5 class="mb-0">Do you really want to clear the queue?</h5>
                         {:else if popupClearProcessedEntries}
-                            <h5 class="mb-0">Do you really want to clear all the processed queue entries?</h5>
+                            <h5 class="mb-0">Do you really want to clear all the processed songs?</h5>
                         {/if}
                     </div>
                     <div class="modal-footer flex-nowrap p-0">
