@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from .auth.crud import add_user, get_user_by_username
 from .auth.models import User
@@ -51,6 +50,7 @@ async def add_users_to_db() -> None:
 
     hashed_password = get_password_hash(settings.ADMIN_PASSWORD)
     user1 = User(username=settings.ADMIN_USERNAME, is_admin=True, hashed_password=hashed_password)
+    # https://stackoverflow.com/questions/56161595/how-to-use-async-for-in-python
     async for session in get_async_session():
         if not await get_user_by_username(session, user1.username):
             await add_user(session, user1)
@@ -82,11 +82,13 @@ def create_app() -> FastAPI:
     app.include_router(auth_router)
     app.include_router(admin_router)
 
+    # https://fastapi.tiangolo.com/tutorial/cors/#use-corsmiddleware
     origins = [
         f"http://{settings.FRONTEND_HOST}:{settings.FRONTEND_PORT}",
         f"https://{settings.FRONTEND_HOST}:{settings.FRONTEND_PORT}"
     ]
 
+    # https://fastapi.tiangolo.com/tutorial/cors/#use-corsmiddleware
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,

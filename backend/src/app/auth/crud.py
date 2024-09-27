@@ -16,6 +16,7 @@ async def add_user(session: AsyncSession, user: User) -> User:
     return user
 
 
+# https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/#hash-and-verify-the-passwords
 async def authenticate_user(session: AsyncSession, username: str, password: str) -> User | None:
     user = await get_user_by_username(session, username)
     if not user:

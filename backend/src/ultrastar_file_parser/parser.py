@@ -80,6 +80,7 @@ class UltrastarFileParser:
                 encoding = "utf-8"
         return encoding
 
+    # https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory
     @staticmethod
     def get_song_file_paths(input_dir: str) -> List[str]:
         """Return all file paths starting from a given dir path that lead to a .txt file.

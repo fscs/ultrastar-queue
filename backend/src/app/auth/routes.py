@@ -15,6 +15,7 @@ auth_router = APIRouter(
 )
 
 
+# https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/#update-the-token-path-operation
 @auth_router.post("/token")
 async def token(session: AsyncSessionDep,
                 form_data: OAuth2PasswordRequestFormDep,

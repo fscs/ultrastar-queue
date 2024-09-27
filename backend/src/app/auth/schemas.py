@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+# https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/#handle-jwt-tokens
+
 
 class Token(BaseModel):
     access_token: str

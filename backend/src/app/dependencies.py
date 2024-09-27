@@ -29,6 +29,7 @@ async def get_async_session() -> AsyncSession:
 AsyncSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 
 
+# https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/#update-the-dependencies
 async def get_current_user(  # token: TokenDep,
         session: AsyncSessionDep,
         access_token: str | None = Cookie(None)) -> User:
