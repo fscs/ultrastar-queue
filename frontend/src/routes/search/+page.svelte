@@ -47,5 +47,7 @@
         <input bind:value={artist} class="form-control" id="artist" placeholder="Artist" type="text">
         <label for="artist">Artist</label>
     </div>
-    <button class="w-100 btn btn-outline-success" type="submit">Search</button>
+    <div class="form-floating mb-3">
+        <button class="h-100 btn btn-outline-success" type="submit">Search</button>
+    </div>
 </form>

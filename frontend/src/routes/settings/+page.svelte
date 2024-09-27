@@ -5,12 +5,12 @@
     import {
         clearProcessedEntriesURL,
         clearQueueURL,
-        getQueueIsOpenURL,
         getMaxTimesSongCanBeSungURL,
+        getQueueIsOpenURL,
         getTimeBetweenSameSongURL,
         getTimeBetweenSongSubmissionsURL,
-        setQueueIsOpenURL,
         setMaxTimesSongCanBeSungURL,
+        setQueueIsOpenURL,
         setTimeBetweenSameSongURL,
         setTimeBetweenSongSubmissionsURL
     } from "$lib/backend_routes.js";
@@ -92,54 +92,79 @@
 </script>
 
 {#if isAdmin}
-    <form on:submit={setQueueIsOpen}>
+    <form class="d-flex flex-column mt-3 mb-3" on:submit={setQueueIsOpen}>
         <div class="mb-3 form-check form-switch">
+            <label class="form-check-label" for="flexSwitchCheckChecked">Open Queue</label>
             <input bind:checked={queueIsOpen} class="form-check-input" id="flexSwitchCheckChecked" role="switch"
                    type="checkbox">
-            <label class="form-check-label" for="flexSwitchCheckChecked">Open Queue</label>
         </div>
-        <button class="btn btn-primary" type="submit">Save</button>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
     </form>
 
-    <form on:submit={setTimeBetweenSameSong}>
+    <hr>
+
+    <form class="d-flex flex-column mb-3" on:submit={setTimeBetweenSameSong}>
         <div class="mb-3">
             <p>Time that has to pass before the same song can be sung again</p>
-            <input bind:value={hoursBetweenSameSong} min="0" type="number"/>
-            <label class="form-label" for="customRange3">Hours</label>
-            <input bind:value={minutesBetweenSameSong} min="0" type="number"/>
-            <label class="form-label" for="customRange3">Minutes</label>
-            <input bind:value={secondsBetweenSameSong} min="0" type="number"/>
-            <label class="form-label" for="customRange3">Seconds</label>
+            <div>
+                <input bind:value={hoursBetweenSameSong} min="0" type="number"/>
+                <label class="form-label" for="customRange3">Hours</label>
+                <input bind:value={minutesBetweenSameSong} min="0" type="number"/>
+                <label class="form-label" for="customRange3">Minutes</label>
+                <input bind:value={secondsBetweenSameSong} min="0" type="number"/>
+                <label class="form-label" for="customRange3">Seconds</label>
+            </div>
         </div>
-        <button class="btn btn-primary" type="submit">Save</button>
-    </form>
-
-    <form on:submit={setMaxTimesSongCanBeSung}>
         <div class="mb-3">
-            <input bind:value={maxTimesSongCanBeSung} min="1" type="number"/>
-            <label class="form-label" for="customRange3">Max Times a song can be sung</label>
+            <button class="btn btn-primary" type="submit">Save</button>
         </div>
-        <button class="btn btn-primary" type="submit">Save</button>
     </form>
 
-    <form on:submit={setTimeBetweenSubmittingSongs}>
+    <hr>
+
+    <form class="d-flex flex-column mb-3" on:submit={setMaxTimesSongCanBeSung}>
+        <div class="mb-3">
+            <p>Max Times a song can be sung</p>
+            <div>
+                <input bind:value={maxTimesSongCanBeSung} min="1" type="number"/>
+                <label class="form-label" for="customRange3">Times</label>
+            </div>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+
+    <hr>
+
+    <form class="d-flex flex-column mb-3" on:submit={setTimeBetweenSubmittingSongs}>
         <div class="mb-3">
             <p>Time that has to pass before the same person can submit a song</p>
-            <input bind:value={hoursBetweenSongSubmissions} min="0" type="number"/>
-            <label class="form-label" for="customRange3">Hours</label>
-            <input bind:value={minutesBetweenSongSubmissions} min="0" type="number"/>
-            <label class="form-label" for="customRange3">Minutes</label>
-            <input bind:value={secondsBetweenSongSubmissions} min="0" type="number"/>
-            <label class="form-label" for="customRange3">Seconds</label>
+            <div>
+                <input bind:value={hoursBetweenSongSubmissions} min="0" type="number"/>
+                <label class="form-label" for="customRange3">Hours</label>
+                <input bind:value={minutesBetweenSongSubmissions} min="0" type="number"/>
+                <label class="form-label" for="customRange3">Minutes</label>
+                <input bind:value={secondsBetweenSongSubmissions} min="0" type="number"/>
+                <label class="form-label" for="customRange3">Seconds</label>
+            </div>
         </div>
-        <button class="btn btn-primary" type="submit">Save</button>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
     </form>
 
-    <div>
+    <hr>
+
+    <div class="d-flex mt-3 mb-3">
         <button class="btn btn-primary" type="submit" on:click={() => popupClearQueue=true}>Clear Queue</button>
     </div>
 
-    <div>
+    <hr>
+
+    <div class="d-flex mt-3 mb-3">
         <button class="btn btn-primary" type="submit" on:click={() => popupClearProcessedEntries=true}>Clear
             Processed Songs
         </button>
