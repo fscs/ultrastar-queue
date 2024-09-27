@@ -2,6 +2,7 @@
     import SongTable from "$lib/SongTable.svelte";
     import {goto} from "$app/navigation";
     import {SearchResultStore} from "../../../stores.js";
+    import {intToDateStr} from "$lib/custom_utils.js";
 </script>
 
 <SongTable>
@@ -19,7 +20,11 @@
         <tr>
             <td><a href="{song.id}">{song.title}</a></td>
             <td>{song.artist}</td>
-            <td>{song.audio_duration}</td>
+            {#if song.audio_duration}
+                <td>{intToDateStr(song.audio_duration)}</td>
+            {:else}
+                <td>Not provided</td>
+            {/if}
             <td>
                 <button type="button" class="btn btn-primary" on:click={() => goto(`/${song.id}/add`)}>Add</button>
             </td>

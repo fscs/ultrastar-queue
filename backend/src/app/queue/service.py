@@ -72,7 +72,8 @@ class QueueService:
         removed: QueueEntry = self._queue.pop(index)
         self._processed_entries.append(ProcessedQueueEntry(song=removed.song,
                                                            singer=removed.singer,
-                                                           processed_at=datetime.now().replace(microsecond=0)))
+                                                           processed_at=datetime.now().replace(microsecond=0) +
+                                                                        timedelta(hours=2)))
         return removed
 
     def remove_entry_by_index(self, index: int) -> QueueEntry:
