@@ -7,8 +7,9 @@
   outputs =
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [ 
+      imports = [
         ./frontend/flake-mod.nix
+        ./backend/flake-mod.nix
       ];
       systems = [
         "x86_64-linux"

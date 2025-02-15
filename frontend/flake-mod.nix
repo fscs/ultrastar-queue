@@ -9,7 +9,7 @@
 
         src = ./.;
 
-        npmDepsHash = "sha256-s9bJv1YS3qqsDFL9UbnRRbBRh7rKpt5qJ8H0szRhz9I=";
+        npmDepsHash = "sha256-xUYwuPxesPKwcxSk9j02gVu79/JAUm0ZAsTfHaz757s=";
 
         installPhase = ''
           installPath="$out/lib/node_modules/${pname}"
