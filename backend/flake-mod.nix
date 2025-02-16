@@ -9,6 +9,11 @@
 
         src = ./.;
 
+        installPhase = ''
+          mkdir -p $out
+          cp -r $src/* $out/
+        '';
+
         propagatedBuildInputs = with pkgs.python3Packages; [
           fastapi
           sqlmodel
