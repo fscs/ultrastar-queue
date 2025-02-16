@@ -49,13 +49,7 @@
         ];
 
         shellHook = ''
-          export DATABASE_URL=sqlite+aiosqlite:///db.sqlite
-          export JWT_SIGNING_SECRET_KEY=secret
-          export PATH_TO_ULTRASTAR_SONG_DIR=/home/felix/.ultrastardx/songs
-          export ADMIN_USERNAME=knut
-          export ADMIN_PASSWORD=knut
-            echo "Starting Uvicorn..."
-            exec uvicorn src.app.main:app --host 0.0.0.0 --port 8000
+          exec uvicorn src.app.main:app --host 0.0.0.0 --port 8000
         '';
       };
 

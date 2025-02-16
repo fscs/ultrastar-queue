@@ -13,9 +13,16 @@
       enable = lib.mkEnableOption "enable the ultrastar queue manager";
 
       backend = {
-        devshell = lib.mkOption {
-          description = "path to the devshell binary";
-          type = t.nonEmptyStr;
+        src = lib.mkOption {
+          description = "source of the backend";
+          type = t.nullOr t.str;
+          default = null;
+        };
+
+        devShell = lib.mkOption {
+          description = "nix-shell to run the backend";
+          type = t.nullOr t.nonEmptyStr;
+          default = null;
         };
 
         environmentFile = lib.mkOption {
@@ -77,6 +84,13 @@
       systemd.services.ultrastar-queue = {
         after = [ "network.target" ];
         wantedBy = [ "multi-user.target" ];
+        preStart = ''
+          mkdir /var/lib/ultraStarQueue
+          cp -r ${cfgB.src} /var/lib/ultraStarQueue
+          chown -R ${config.users.users.ultrastar-queue.name}:${config.users.groups.ultrastar-queue.name} /var/lib/ultraStarQueue
+          cd /var/lib/ultraStarQueue
+          alembic upgrade head
+        '';
         serviceConfig = {
           environment = {
             DATABASE_URL = cfgB.databaseUrl;
@@ -86,7 +100,7 @@
             ADMIN_PASSWORD = cfgB.adminPassword;
           };
           EnvironmentFile = cfgB.environmentFile;
-          ExecStart = "/usr/bin/env nix-shell ${cfgB.devshell}";
+          ExecStart = "cd /var/lib/ultraStarQueue && /usr/bin/env nix-shell ${cfgB.devShell}";
           Type = "exec";
           User = config.users.users.ultrastar-queue.name;
           Restart = "always";
@@ -129,3 +143,4 @@
       };
     };
 }
+
