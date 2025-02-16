@@ -9,9 +9,9 @@
 
         src = ./.;
 
-        installPhase = ''
-          mkdir -p $out
-          cp -r $src/* $out/
+        postInstall = ''
+          mkdir -p $out/source
+          cp -r $src/* $out/source
         '';
 
         propagatedBuildInputs = with pkgs.python3Packages; [
