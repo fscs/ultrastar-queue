@@ -1,4 +1,9 @@
 import os
+import uvicorn
+
+from alembic.config import Config
+from alembic import command
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -99,6 +104,13 @@ def create_app() -> FastAPI:
 
     return app
 
+def start():
+    alembic_config_file = os.getenv("ALEMBIC_CONFIG_PATH")
+
+    alembic_cfg = Config(alembic_config_file)
+    command.upgrade(alembic_cfg, "head")
+
+    uvicorn.run("src.app.main:app", host="0.0.0.0", port=8000)
 
 setup_logging()
 db_logger = get_db_logger()

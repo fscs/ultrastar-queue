@@ -16,32 +16,13 @@
     }
   },
   "handlers": {
-    "db_info": {
-      "class": "logging.handlers.RotatingFileHandler",
-      "formatter": "simple",
-      "level": "DEBUG",
-      "filters": [
-        "only_info"
-      ],
-      "filename": "db_population_info.log",
-      "maxBytes": 1048576,
-      "backupCount": 5
-    },
-    "db_error": {
-      "class": "logging.handlers.RotatingFileHandler",
-      "formatter": "detailed",
-      "level": "ERROR",
-      "filename": "db_population_error.log",
-      "maxBytes": 1048576,
-      "backupCount": 5
+    "stderr": {
+      "class": "logging.StreamHandler"
     }
   },
   "loggers": {
     "db_population": {
-      "handlers": [
-        "db_error",
-        "db_info"
-      ]
+      "handlers": ["stderr"]
     }
   }
 }

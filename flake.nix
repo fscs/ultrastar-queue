@@ -2,6 +2,7 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    poetry2nix.url = "github:nix-community/poetry2nix";
   };
 
   outputs =

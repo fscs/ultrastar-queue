@@ -1,57 +1,36 @@
-{ lib, ... }:
+{ inputs, lib, ... }:
 {
   perSystem =
     { pkgs, ... }:
+    let
+      poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
+    in
     {
-      packages.backend = pkgs.python312Packages.buildPythonPackage rec {
-        name = "ultrastar-queue-backend";
-        version = "0.0.1";
+      packages.backend = poetry2nix.mkPoetryApplication {
+        projectDir = ./.;
 
-        src = ./.;
+        python = pkgs.python312;
+        overrides = poetry2nix.overrides.withDefaults (
+          final: prev: {
+            tinytag = pkgs.python312Packages.tinytag;
+          }
+        );
+
+        nativeBuildInputs = [ pkgs.makeWrapper ];
 
         postInstall = ''
-          mkdir -p $out/source
-          cp -r $src/* $out/source
+          srcPath="$out/lib/python3.12/site-packages/src"
+
+          cp ${./alembic.ini} $srcPath/alembic.ini
+
+          substituteInPlace $srcPath/alembic.ini \
+            --replace "src/alembic" "$srcPath/alembic"
+
+            wrapProgram $out/bin/ultrastar-queue-backend \
+              --set ALEMBIC_CONFIG_PATH $srcPath/alembic.ini
         '';
 
-        propagatedBuildInputs = with pkgs.python3Packages; [
-          fastapi
-          sqlmodel
-          pydantic
-          passlib
-          pyjwt
-          uvicorn
-          sqlalchemy
-          aiosqlite
-          httpx
-          pytest
-          tinytag
-          pydantic-settings
-          alembic
-          python
-        ];
-
-        meta.mainProgram = name;
+        meta.mainProgram = "ultrastar-queue-backend";
       };
-      devShells.backend = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          python312
-          python312Packages.virtualenv
-          python312Packages.sqlmodel
-          python312Packages.uvicorn
-          python312Packages.fastapi
-          python312Packages.pyjwt
-          python312Packages.passlib
-          python312Packages.pydantic-settings
-          python312Packages.aiosqlite
-          python312Packages.tinytag
-          python312Packages.python-multipart
-        ];
-
-        shellHook = ''
-          exec uvicorn src.app.main:app --host 0.0.0.0 --port 8000
-        '';
-      };
-
     };
 }
